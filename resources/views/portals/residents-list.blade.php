@@ -476,6 +476,122 @@ function closeEditResidentModal() {
     document.getElementById('editResidentModal').classList.add('hidden');
 }
 
+const MAX_UPLOAD_BYTES = 900 * 1024; // Keep below common nginx default of 1MB.
+
+function loadImageFromFile(file) {
+    return new Promise((resolve, reject) => {
+        const image = new Image();
+        const objectUrl = URL.createObjectURL(file);
+
+        image.onload = () => {
+            URL.revokeObjectURL(objectUrl);
+            resolve(image);
+        };
+
+        image.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error('Unable to read image file.'));
+        };
+
+        image.src = objectUrl;
+    });
+}
+
+function canvasToBlob(canvas, quality) {
+    return new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', quality);
+    });
+}
+
+async function compressImageFileForUpload(file, targetBytes) {
+    const sourceImage = await loadImageFromFile(file);
+    let width = sourceImage.width;
+    let height = sourceImage.height;
+    const maxSide = 1600;
+
+    if (Math.max(width, height) > maxSide) {
+        const scale = maxSide / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+    }
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+        throw new Error('Canvas is not supported on this browser.');
+    }
+
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+        canvas.width = width;
+        canvas.height = height;
+        context.clearRect(0, 0, width, height);
+        context.drawImage(sourceImage, 0, 0, width, height);
+
+        const quality = Math.max(0.45, 0.85 - attempt * 0.08);
+        const blob = await canvasToBlob(canvas, quality);
+
+        if (!blob) {
+            throw new Error('Failed to prepare image upload.');
+        }
+
+        if (blob.size <= targetBytes || attempt === 5) {
+            const safeName = (file.name || 'resident-id').replace(/\.[^.]+$/, '');
+            return new File([blob], `${safeName}.jpg`, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+            });
+        }
+
+        width = Math.max(720, Math.round(width * 0.85));
+        height = Math.max(720, Math.round(height * 0.85));
+    }
+
+    throw new Error('Failed to compress image to the required size.');
+}
+
+async function prepareResidentIdFileForSubmit(form) {
+    const fileInput = form.querySelector('input[name="resident_id_file"]');
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        return true;
+    }
+
+    const selectedFile = fileInput.files[0];
+    if (selectedFile.size <= MAX_UPLOAD_BYTES) {
+        return true;
+    }
+
+    if (!selectedFile.type.startsWith('image/')) {
+        alert('The selected file is too large for mobile upload. Please use an image under 900KB or a smaller PDF.');
+        fileInput.value = '';
+        return false;
+    }
+
+    try {
+        const compressedFile = await compressImageFileForUpload(selectedFile, MAX_UPLOAD_BYTES);
+        if (compressedFile.size > MAX_UPLOAD_BYTES) {
+            alert('Image is still too large after compression. Please choose a smaller image.');
+            fileInput.value = '';
+            return false;
+        }
+
+        if (typeof DataTransfer === 'undefined') {
+            alert('Your browser does not support automatic image compression. Please choose a smaller image.');
+            fileInput.value = '';
+            return false;
+        }
+
+        const transfer = new DataTransfer();
+        transfer.items.add(compressedFile);
+        fileInput.files = transfer.files;
+        return true;
+    } catch (error) {
+        alert('Unable to process this image on your device. Please choose a smaller image or convert to JPG.');
+        fileInput.value = '';
+        return false;
+    }
+}
+
 function filterTable() {
     const search = document.getElementById('searchInput').value.toLowerCase();
     const rows = document.querySelectorAll('#residentsTable tr');
@@ -494,6 +610,25 @@ function filterTable() {
 document.addEventListener('DOMContentLoaded', () => {
     const rows = document.querySelectorAll('#residentsTable tr');
     document.getElementById('recordCount').textContent = `Showing ${rows.length} record(s)`;
+
+    const editForm = document.getElementById('editResidentForm');
+    if (editForm) {
+        editForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            if (editForm.dataset.submitting === '1') {
+                return;
+            }
+
+            const fileReady = await prepareResidentIdFileForSubmit(editForm);
+            if (!fileReady) {
+                return;
+            }
+
+            editForm.dataset.submitting = '1';
+            editForm.submit();
+        });
+    }
 });
 </script>
 

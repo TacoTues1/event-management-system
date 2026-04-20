@@ -20,7 +20,7 @@ class SignupController extends Controller
             'contact_number' => 'required|string|max:20',
             'password' => 'required|string|min:6',
             'id_type' => 'required|string|max:100',
-            'resident_id_file' => 'required|file|mimes:jpg,jpeg,png,webp,avif,heic,heif,pdf|max:5120',
+            'resident_id_file' => 'required|file|extensions:jpg,jpeg,png,webp,avif,heic,heif,pdf|mimetypes:image/jpeg,image/jpg,image/png,image/webp,image/avif,image/heic,image/heif,image/heic-sequence,image/heif-sequence,application/pdf,application/octet-stream|max:10240',
             'birthdate' => 'required|date|before:today',
             'civil_status' => 'required|string|max:20',
             'purok' => 'required|string|max:100',
@@ -32,7 +32,9 @@ class SignupController extends Controller
         ], [
             'email.unique' => 'This email is already registered.',
             'birthdate.before' => 'Birthdate must be a past date.',
-            'resident_id_file.mimes' => 'Supported file types: JPG, JPEG, PNG, WEBP, AVIF, HEIC, HEIF, PDF.',
+            'resident_id_file.extensions' => 'Supported file types: JPG, JPEG, PNG, WEBP, AVIF, HEIC, HEIF, PDF.',
+            'resident_id_file.mimetypes' => 'This file type is not supported by iPhone upload handling. Please choose a JPG, HEIC, PNG, WEBP, AVIF, or PDF file.',
+            'resident_id_file.max' => 'The ID file must not be greater than 10MB.',
         ]);
 
         try {
