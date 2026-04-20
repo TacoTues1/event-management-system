@@ -9,6 +9,24 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
+
+        .preview-sheet-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .bond-paper {
+            width: min(100%, 595px);
+            aspect-ratio: 210 / 297;
+            margin: 0 auto;
+            padding: 48px;
+        }
+
+        @media (max-width: 640px) {
+            .bond-paper {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
@@ -80,8 +98,6 @@
             }
         });
     </script>
-        </div>
-    </header>
 
     <div class="flex flex-col lg:flex-row gap-4 sm:gap-6 p-4 sm:p-6">
         <!-- LEFT PANEL - FORM -->
@@ -117,11 +133,10 @@
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Purok</label>
                     <select id="purok" name="purok" class="w-full bg-slate-50 border-0 rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                        <option value="Purok Mahigugma-on" {{ Auth::user()->purok == 'Purok Mahigugma-on' ? 'selected' : '' }}>Purok Mahigugma-on</option>
-                        <option value="Purok Gumamela" {{ Auth::user()->purok == 'Purok Gumamela' ? 'selected' : '' }}>Purok Gumamela</option>
-                        <option value="Purok Santol" {{ Auth::user()->purok == 'Purok Santol' ? 'selected' : '' }}>Purok Santol</option>
-                        <option value="Purok Cebasca" {{ Auth::user()->purok == 'Purok Cebasca' ? 'selected' : '' }}>Purok Cebasca</option>
-                        <option value="Purok Fuente" {{ Auth::user()->purok == 'Purok Fuente' ? 'selected' : '' }}>Purok Fuente</option>
+                        <option value="">Select Purok</option>
+                        @foreach(config('puroks') as $name => $coords)
+                            <option value="{{ $name }}" {{ Auth::user()->purok == $name ? 'selected' : '' }}>{{ $name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 
@@ -142,7 +157,8 @@
                 <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-4 sm:mb-6">Certificate Preview</h3>
                 
                 <!-- CERTIFICATE PREVIEW -->
-                <div class="bond-paper bg-white border-2 border-slate-200 p-6 sm:p-12 mx-auto relative overflow-x-auto" style="max-width: 600px; min-height: 400px;">
+                <div class="preview-sheet-wrap">
+                <div class="bond-paper bg-white border-2 border-slate-200 relative">
                     
                     <!-- WATERMARK -->
                     <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
@@ -193,6 +209,7 @@
                             <p>Punong Barangay</p>
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
         </div>

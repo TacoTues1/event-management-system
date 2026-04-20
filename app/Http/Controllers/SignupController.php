@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class SignupController extends Controller
 {
@@ -16,10 +17,14 @@ class SignupController extends Controller
             'first_name' => 'required|string|max:150',
             'last_name' => 'required|string|max:150',
             'email' => 'required|email|unique:residents,email|unique:users,email',
+            'contact_number' => 'required|string|max:20',
             'password' => 'required|string|min:6',
+            'id_type' => 'required|string|max:100',
+            'resident_id_file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'birthdate' => 'required|date|before:today',
             'civil_status' => 'required|string|max:20',
             'purok' => 'required|string|max:100',
+            'building_no' => 'required|string|max:100',
             'full_address' => 'required|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
@@ -32,18 +37,24 @@ class SignupController extends Controller
         try {
             $age = \Carbon\Carbon::parse($request->birthdate)->age;
             $fullName = trim($request->first_name . ' ' . ($request->middle_name ?? '') . ' ' . $request->last_name . ' ' . ($request->suffix ?? ''));
+            $fullAddress = trim($request->building_no . ', ' . $request->purok . ', Bagacay, Dumaguete City');
+            $residentIdFilePath = $request->file('resident_id_file')->store('resident-ids', 'public');
 
             $user = User::create([
                 'name' => $fullName,
                 'email' => $request->email,
+                'contact_number' => $request->contact_number,
                 'password' => $request->password,
                 'role' => 'resident',
                 'age' => $age,
                 'civil_status' => $request->civil_status,
+                'id_type' => $request->id_type,
+                'resident_id_file' => $residentIdFilePath,
                 'purok' => $request->purok,
+                'building_no' => $request->building_no,
                 'barangay' => 'Bagacay',
                 'city' => 'Dumaguete City',
-                'full_address' => $request->full_address,
+                'full_address' => $fullAddress,
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'is_indigent' => $request->cash_assistance_programs,
@@ -54,6 +65,9 @@ class SignupController extends Controller
             Auth::login($user);
             return redirect()->route('user.dashboard')->with('success', 'Registration successful! Welcome to your dashboard.');
         } catch (\Exception $e) {
+            if (isset($residentIdFilePath)) {
+                Storage::disk('public')->delete($residentIdFilePath);
+            }
             Log::error('Registration failed for email ' . $request->email . ': ' . $e->getMessage());
             return back()->with('error', 'Registration failed. Please try again.')->withInput($request->except('password'));
         }

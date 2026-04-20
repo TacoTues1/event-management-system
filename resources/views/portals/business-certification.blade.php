@@ -44,15 +44,14 @@
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Purok</label>
-                    <select id="purok" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                        <option value="Purok Mahigugma-on">Purok Mahigugma-on</option>
-                        <option value="Purok Gumamela">Purok Gumamela</option>
-                        <option value="Purok Santol">Purok Santol</option>
-                        <option value="Purok Cebasca">Purok Cebasca</option>
-                        <option value="Purok Fuente">Purok Fuente</option>
-                    </select>
-                </div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Purok</label>
+                <select id="purok" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                    <option value="">Select Purok</option>
+                    @foreach(config('puroks', []) as $name => $coords)
+                    <option value="{{ $name }}">{{ $name }}</option>
+                    @endforeach
+                </select>
+            </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Business Name</label>

@@ -210,29 +210,6 @@
             updatePhilippineTime();
             setInterval(updatePhilippineTime, 1000);
             
-            // Clear all text inputs on page load
-            window.addEventListener('load', function() {
-                const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="number"], textarea');
-                inputs.forEach(input => {
-                    input.value = '';
-                });
-            });
-
-            // Clear all text inputs after form submission
-            document.addEventListener('DOMContentLoaded', function() {
-                const forms = document.querySelectorAll('form');
-                forms.forEach(form => {
-                    form.addEventListener('submit', function() {
-                        setTimeout(() => {
-                            const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="number"], textarea');
-                            inputs.forEach(input => {
-                                input.value = '';
-                            });
-                        }, 100);
-                    });
-                });
-            });
-
             // Mobile menu toggle
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
             const sidebar = document.getElementById('sidebar');

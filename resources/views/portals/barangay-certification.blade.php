@@ -35,11 +35,10 @@
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-2">Purok</label>
                 <select id="purok" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                    <option value="Purok Mahigugma-on">Purok Mahigugma-on</option>
-                    <option value="Purok Gumamela">Purok Gumamela</option>
-                    <option value="Purok Santol">Purok Santol</option>
-                    <option value="Purok Cebasca">Purok Cebasca</option>
-                    <option value="Purok Fuente">Purok Fuente</option>
+                    <option value="">Select Purok</option>
+                    @foreach(config('puroks') as $name => $coords)
+                    <option value="{{ $name }}">{{ $name }}</option>
+                    @endforeach
                 </select>
             </div>
             
@@ -75,7 +74,7 @@
             <h3 class="text-xl font-bold text-slate-800 mb-6">Certificate Preview</h3>
             
             <!-- CERTIFICATE PREVIEW -->
-            <div class="bond-paper bg-white border-2 border-slate-200 p-12 mx-auto relative" style="width: 600px; min-height: 800px; transform: scale(0.8); transform-origin: top;">
+            <div class="bond-paper bg-white border-2 border-slate-200 p-12 mx-auto relative flex flex-col" style="width: 600px; min-height: 800px; transform: scale(0.8); transform-origin: top;">
                 
                 <!-- WATERMARK -->
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
@@ -102,27 +101,31 @@
                 </h2>
                 
                 <!-- BODY -->
-                <div class="text-sm leading-relaxed space-y-4">
-                    <p class="font-semibold mb-4">TO WHOM IT MAY CONCERN:</p>
-                    
-                    <p>
-                        This is to certify that <span id="previewName" class="font-bold underline">_________________</span>,
-                        of legal age, a resident of <span id="previewPurok" class="underline">_________________</span>,
-                        Barangay Bagacay, Dumaguete City, engaged in <span id="previewBusiness" class="underline">_________________</span>
-                        business since <span id="previewBusinessYear" class="underline">____</span> up to the present.
-                    </p>
-                    
-                    <p>
-                        This certification is issued upon the request of the aforementioned for
-                        <span id="previewPurpose" class="underline">_________________</span>.
-                    </p>
-                    
-                    <p>
-                        Issued this <span id="previewDate" class="underline">__/__/____</span>
-                        at the office of the Barangay Captain Barangay Bagacay, Dumaguete City.
-                    </p>
-                    
-                    <div class="text-center mt-16">
+                <div class="text-sm leading-relaxed">
+                    <div class="space-y-4">
+                        <p class="font-semibold mb-4">TO WHOM IT MAY CONCERN:</p>
+                        
+                        <p>
+                            This is to certify that <span id="previewName" class="font-bold underline">_________________</span>,
+                            of legal age, a resident of <span id="previewPurok" class="underline">_________________</span>,
+                            Barangay Bagacay, Dumaguete City, engaged in <span id="previewBusiness" class="underline">_________________</span>
+                            business since <span id="previewBusinessYear" class="underline">____</span> up to the present.
+                        </p>
+                        
+                        <p>
+                            This certification is issued upon the request of the aforementioned for
+                            <span id="previewPurpose" class="underline">_________________</span>.
+                        </p>
+                        
+                        <p>
+                            Issued this <span id="previewDate" class="underline">__/__/____</span>
+                            at the office of the Barangay Captain Barangay Bagacay, Dumaguete City.
+                        </p>
+                    </div>
+
+                    <div style="height: 220px;"></div>
+
+                    <div class="text-center">
                         <p class="font-bold uppercase">VINCENT ANDREW A. PERIGUA</p>
                         <p>Punong Barangay</p>
                     </div>
@@ -220,7 +223,7 @@
         transform: none !important;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
     }
     
     @page { 

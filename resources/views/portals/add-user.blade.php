@@ -31,7 +31,7 @@
         </div>
     @endif
 
-    <form action="{{ route('admin.store-resident') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <form id="residentForm" action="{{ route('admin.store-resident') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @csrf
 
         <!-- First Name -->
@@ -84,6 +84,33 @@
                    class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" required>
         </div>
 
+        <!-- ID Type -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700">ID Type</label>
+            <select name="id_type"
+                class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" required>
+                <option value="">Select ID Type</option>
+                <option value="National ID" {{ old('id_type') == 'National ID' ? 'selected' : '' }}>National ID</option>
+                <option value="Postal ID" {{ old('id_type') == 'Postal ID' ? 'selected' : '' }}>Postal ID</option>
+                <option value="Barangay ID" {{ old('id_type') == 'Barangay ID' ? 'selected' : '' }}>Barangay ID</option>
+                <option value="Senior Citizen ID" {{ old('id_type') == 'Senior Citizen ID' ? 'selected' : '' }}>Senior Citizen ID</option>
+                <option value="UMID" {{ old('id_type') == 'UMID' ? 'selected' : '' }}>UMID</option>
+                <option value="Voter's ID" {{ old('id_type') == "Voter's ID" ? 'selected' : '' }}>Voter's ID</option>
+                <option value="PhilHealth ID" {{ old('id_type') == 'PhilHealth ID' ? 'selected' : '' }}>PhilHealth ID</option>
+                <option value="Driver's License" {{ old('id_type') == "Driver's License" ? 'selected' : '' }}>Driver's License</option>
+                <option value="Passport" {{ old('id_type') == 'Passport' ? 'selected' : '' }}>Passport</option>
+                <option value="Other Government ID" {{ old('id_type') == 'Other Government ID' ? 'selected' : '' }}>Other Government ID</option>
+            </select>
+        </div>
+
+        <!-- Resident ID File -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Resident ID File</label>
+            <input type="file" name="resident_id_file" accept=".jpg,.jpeg,.png,.pdf"
+                   class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" required>
+            <p class="text-xs text-gray-500 mt-2">Accepted files: JPG, PNG, PDF. Max size: 5MB.</p>
+        </div>
+
         <!-- Birthdate -->
         <div>
             <label class="block text-sm font-medium text-gray-700">Birthdate</label>
@@ -107,7 +134,7 @@
         <!-- Purok -->
         <div>
             <label class="block text-sm font-medium text-gray-700">Purok</label>
-            <select name="purok" id="purok" onchange="updateMapByPurok()"
+            <select name="purok" id="purok" onchange="updateMapByPurok(); updateFullAddressPreview();"
                    class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" required>
                 <option value="">Select Purok</option>
                 @foreach(config('puroks') as $name => $coords)
@@ -116,11 +143,32 @@
             </select>
         </div>
 
-        <!-- Full Address -->
+        <!-- Building Number -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Building No.</label>
+            <input type="text" name="building_no" id="building_no" value="{{ old('building_no') }}" oninput="updateFullAddressPreview()"
+                class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" required>
+        </div>
+
+        <!-- Barangay (Fixed) -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Barangay</label>
+            <input type="text" name="barangay" id="barangay" value="Bagacay" readonly
+                class="mt-1 w-full border rounded-md px-3 py-2 bg-gray-100 text-gray-500 cursor-not-allowed">
+        </div>
+
+        <!-- City (Fixed) -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700">City</label>
+            <input type="text" name="city" id="city" value="Dumaguete City" readonly
+                class="mt-1 w-full border rounded-md px-3 py-2 bg-gray-100 text-gray-500 cursor-not-allowed">
+        </div>
+
+        <!-- Full Address Preview -->
         <div class="md:col-span-2 lg:col-span-3">
-            <label class="block text-sm font-medium text-gray-700">Full Address</label>
-            <textarea name="full_address" rows="3"
-                      class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" required>{{ old('full_address') }}</textarea>
+            <label class="block text-sm font-medium text-gray-700">Full Address Preview</label>
+            <input type="text" name="full_address" id="full_address" value="{{ old('full_address') }}" readonly
+                   class="mt-1 w-full border rounded-md px-3 py-2 bg-gray-100 text-gray-700" required>
         </div>
 
         <!-- Geo-tagging Section -->
@@ -175,6 +223,86 @@
 
 <script>
     let map, marker;
+    const addUserDraftKey = 'admin_add_user_form_draft_v1';
+
+    function getResidentForm() {
+        return document.getElementById('residentForm');
+    }
+
+    function clearResidentFormDraft() {
+        localStorage.removeItem(addUserDraftKey);
+    }
+
+    function saveResidentFormDraft() {
+        const form = getResidentForm();
+        if (!form) {
+            return;
+        }
+
+        const draft = {};
+        const fields = form.querySelectorAll('input, select, textarea');
+
+        fields.forEach((field) => {
+            if (!field.name) {
+                return;
+            }
+
+            if (field.type === 'password' || field.type === 'file') {
+                return;
+            }
+
+            draft[field.name] = field.value;
+        });
+
+        localStorage.setItem(addUserDraftKey, JSON.stringify(draft));
+    }
+
+    function restoreResidentFormDraft() {
+        const form = getResidentForm();
+        if (!form) {
+            return;
+        }
+
+        const rawDraft = localStorage.getItem(addUserDraftKey);
+        if (!rawDraft) {
+            return;
+        }
+
+        let draft = {};
+
+        try {
+            draft = JSON.parse(rawDraft) || {};
+        } catch (error) {
+            clearResidentFormDraft();
+            return;
+        }
+
+        Object.keys(draft).forEach((name) => {
+            const field = form.querySelector(`[name="${name}"]`);
+            if (!field) {
+                return;
+            }
+
+            if (field.type === 'password' || field.type === 'file') {
+                return;
+            }
+
+            field.value = draft[name] ?? '';
+        });
+    }
+
+    function ensureFixedAddressValues() {
+        const barangayInput = document.getElementById('barangay');
+        const cityInput = document.getElementById('city');
+
+        if (barangayInput) {
+            barangayInput.value = 'Bagacay';
+        }
+
+        if (cityInput) {
+            cityInput.value = 'Dumaguete City';
+        }
+    }
     
     const purokLocations = @json(array_map(fn($c) => [$c['lat'], $c['lng']], config('puroks')));
     
@@ -238,9 +366,52 @@
         document.getElementById('latitude').value = lat.toFixed(6);
         document.getElementById('longitude').value = lng.toFixed(6);
     }
+
+    function updateFullAddressPreview() {
+        const buildingNo = document.getElementById('building_no').value.trim();
+        const purok = document.getElementById('purok').value;
+        const barangay = document.getElementById('barangay').value;
+        const city = document.getElementById('city').value;
+
+        const parts = [buildingNo, purok, barangay, city].filter(Boolean);
+        document.getElementById('full_address').value = parts.join(', ');
+    }
     
     document.addEventListener('DOMContentLoaded', function() {
+        const registrationSucceeded = @json(session()->has('success'));
+        if (registrationSucceeded) {
+            clearResidentFormDraft();
+        }
+
+        restoreResidentFormDraft();
+        ensureFixedAddressValues();
         initMap();
+        updateFullAddressPreview();
+
+        const latitudeValue = parseFloat(document.getElementById('latitude').value);
+        const longitudeValue = parseFloat(document.getElementById('longitude').value);
+        if (!isNaN(latitudeValue) && !isNaN(longitudeValue)) {
+            const restoredLocation = [latitudeValue, longitudeValue];
+            map.setView(restoredLocation, 16);
+            marker.setLatLng(restoredLocation);
+            updateCoordinates(latitudeValue, longitudeValue);
+        }
+
+        if (document.getElementById('purok').value) {
+            updateMapByPurok();
+        }
+
+        const residentForm = getResidentForm();
+        if (residentForm) {
+            residentForm.addEventListener('input', saveResidentFormDraft);
+            residentForm.addEventListener('change', saveResidentFormDraft);
+
+            residentForm.addEventListener('submit', function() {
+                ensureFixedAddressValues();
+                updateFullAddressPreview();
+                saveResidentFormDraft();
+            });
+        }
     });
 </script>
 

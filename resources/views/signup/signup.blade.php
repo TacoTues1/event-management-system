@@ -63,7 +63,7 @@
     @endif
 
 
-    <form action="{{ route('signup.store') }}" method="POST" class="space-y-4">
+    <form action="{{ route('signup.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
         @csrf
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <div>
@@ -95,13 +95,34 @@
             </div>
         </div>
 
-        <div>
-            <label for="password" class="block text-sm font-medium text-slate-700 mb-2">Password</label>
-            <div class="relative">
-                <input type="password" name="password" id="password" placeholder="Password" autocomplete="new-password" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 pr-12 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
-                <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                    <i data-feather="eye" id="eyeIcon" class="w-4 h-4"></i>
-                </button>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div>
+                <label for="password" class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                <div class="relative">
+                    <input type="password" name="password" id="password" placeholder="Password" autocomplete="new-password" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 pr-12 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
+                    <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        <i data-feather="eye" id="eyeIcon" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <label for="id_type" class="block text-sm font-medium text-slate-700 mb-2">ID Type</label>
+                <select name="id_type" id="id_type" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
+                    <option value="">Select ID Type</option>
+                    <option value="Barangay ID">Barangay ID</option>
+                    <option value="Senior Citizen ID">Senior Citizen ID</option>
+                    <option value="UMID">UMID</option>
+                    <option value="Voter's ID">Voter's ID</option>
+                    <option value="PhilHealth ID">PhilHealth ID</option>
+                    <option value="Driver's License">Driver's License</option>
+                    <option value="Passport">Passport</option>
+                    <option value="Other Government ID">Other Government ID</option>
+                </select>
+            </div>
+            <div>
+                <label for="resident_id_file" class="block text-sm font-medium text-slate-700 mb-2">Resident ID File</label>
+                <input type="file" name="resident_id_file" id="resident_id_file" accept=".jpg,.jpeg,.png,.pdf" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-2.5 text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-white hover:file:bg-blue-700" required>
+                <p class="text-xs text-slate-500 mt-2">Accepted files: JPG, PNG, PDF. Max size: 5MB.</p>
             </div>
         </div>
 
@@ -122,19 +143,35 @@
             </div>
             <div>
                 <label for="purok" class="block text-sm font-medium text-slate-700 mb-2">Purok</label>
-                <select name="purok" id="purok" onchange="updateMapByPurok()" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
+                <select name="purok" id="purok" onchange="updateMapByPurok(); updateFullAddressPreview();" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
                     <option value="">Select Purok</option>
                     @foreach(config('puroks') as $name => $coords)
                     <option value="{{ $name }}">{{ $name }}</option>
                     @endforeach
                 </select>
+                <p class="text-xs text-slate-500 mt-2">Used as the street/location reference within Barangay Bagacay.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div>
+                <label for="building_no" class="block text-sm font-medium text-slate-700 mb-2">Building No.</label>
+                <input type="text" name="building_no" id="building_no" placeholder="Enter building/house number" oninput="updateFullAddressPreview()" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
+            </div>
+            <div>
+                <label for="barangay" class="block text-sm font-medium text-slate-700 mb-2">Barangay</label>
+                <input type="text" name="barangay" id="barangay" value="Bagacay" readonly class="w-full bg-slate-100 border-0 rounded-2xl px-4 py-3 text-slate-500 cursor-not-allowed">
+            </div>
+            <div>
+                <label for="city" class="block text-sm font-medium text-slate-700 mb-2">City</label>
+                <input type="text" name="city" id="city" value="Dumaguete City" readonly class="w-full bg-slate-100 border-0 rounded-2xl px-4 py-3 text-slate-500 cursor-not-allowed">
             </div>
         </div>
 
         <div class="grid grid-cols-1 gap-4">
             <div>
-                <label for="full_address" class="block text-sm font-medium text-slate-700 mb-2">Full Address</label>
-                <textarea name="full_address" id="full_address" rows="3" placeholder="Enter your complete address" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required></textarea>
+                <label for="full_address" class="block text-sm font-medium text-slate-700 mb-2">Full Address Preview</label>
+                <input type="text" name="full_address" id="full_address" readonly class="w-full bg-slate-100 border-0 rounded-2xl px-4 py-3 text-slate-700" required>
             </div>
         </div>
 
@@ -193,6 +230,19 @@
 
   <script>
     let map, marker;
+
+    function ensureFixedAddressValues() {
+        const barangayInput = document.getElementById('barangay');
+        const cityInput = document.getElementById('city');
+
+        if (barangayInput) {
+            barangayInput.value = 'Bagacay';
+        }
+
+        if (cityInput) {
+            cityInput.value = 'Dumaguete City';
+        }
+    }
     
     // Purok coordinates
     const purokLocations = @json(array_map(fn($c) => [$c['lat'], $c['lng']], config('puroks')));
@@ -290,6 +340,16 @@
         document.getElementById('latitude').value = lat.toFixed(6);
         document.getElementById('longitude').value = lng.toFixed(6);
     }
+
+    function updateFullAddressPreview() {
+        const buildingNo = document.getElementById('building_no').value.trim();
+        const purok = document.getElementById('purok').value;
+        const barangay = document.getElementById('barangay').value;
+        const city = document.getElementById('city').value;
+
+        const parts = [buildingNo, purok, barangay, city].filter(Boolean);
+        document.getElementById('full_address').value = parts.join(', ');
+    }
     
     // Update marker color based on selected program
     function updateMarkerColor() {
@@ -305,23 +365,23 @@
     
     // Initialize map when page loads
     document.addEventListener('DOMContentLoaded', function() {
+        ensureFixedAddressValues();
         initMap();
+        updateFullAddressPreview();
+        if (document.getElementById('purok').value) {
+            updateMapByPurok();
+        }
         
         // Add event listener to cash assistance program dropdown
         document.getElementById('cash_assistance_programs').addEventListener('change', updateMarkerColor);
-    });
-    
-    // Clear all text inputs on page load
-    window.addEventListener('load', function() {
-        const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="password"], input[type="date"], select, textarea');
-        inputs.forEach(input => {
-            if (input.id !== 'latitude' && input.id !== 'longitude') {
-                input.value = '';
-                if (input.tagName === 'SELECT') {
-                    input.selectedIndex = 0;
-                }
-            }
-        });
+
+        const signupForm = document.querySelector('form[action="{{ route('signup.store') }}"]');
+        if (signupForm) {
+            signupForm.addEventListener('submit', function() {
+                ensureFixedAddressValues();
+                updateFullAddressPreview();
+            });
+        }
     });
 
     feather.replace();

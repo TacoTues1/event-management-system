@@ -11,6 +11,8 @@ use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 
 class AdminController extends Controller
@@ -120,6 +122,160 @@ class AdminController extends Controller
         $residents = $query->orderBy('name')->get();
 
         return view('portals.residents-list', compact('residents'));
+    }
+
+    public function updateResident(Request $request, $id)
+    {
+        $resident = User::where('role', 'resident')->where('user_id', $id)->firstOrFail();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:150',
+            'email' => 'required|email|unique:users,email,' . $resident->user_id . ',user_id',
+            'contact_number' => 'required|string|max:20',
+            'password' => 'nullable|string|min:6',
+            'age' => 'nullable|integer|min:0|max:150',
+            'civil_status' => 'required|string|max:20',
+            'id_type' => 'required|string|max:100',
+            'resident_id_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'purok' => 'required|string|max:100',
+            'building_no' => 'required|string|max:100',
+            'barangay' => 'required|string|max:100',
+            'city' => 'required|string|max:100',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'cash_assistance_programs' => 'required|string|max:255',
+            'purpose' => 'nullable|string|max:255',
+            'date_issued' => 'nullable|date',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request, $resident, $validated) {
+                $updateData = [
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'contact_number' => $validated['contact_number'],
+                    'age' => $validated['age'] ?? $resident->age,
+                    'civil_status' => $validated['civil_status'],
+                    'id_type' => $validated['id_type'],
+                    'purok' => $validated['purok'],
+                    'building_no' => $validated['building_no'],
+                    'barangay' => $validated['barangay'],
+                    'city' => $validated['city'],
+                    'full_address' => trim($validated['building_no'] . ', ' . $validated['purok'] . ', ' . $validated['barangay'] . ', ' . $validated['city']),
+                    'latitude' => $validated['latitude'] ?? null,
+                    'longitude' => $validated['longitude'] ?? null,
+                    'is_indigent' => $validated['cash_assistance_programs'],
+                    'purpose' => $validated['purpose'] ?? ($resident->purpose ?: 'Resident Registration'),
+                    'date_issued' => $validated['date_issued'] ?? ($resident->date_issued ?: now()->format('Y-m-d')),
+                ];
+
+                if (!empty($validated['password'])) {
+                    $updateData['password'] = Hash::make($validated['password']);
+                }
+
+                if ($request->hasFile('resident_id_file')) {
+                    $newFilePath = $request->file('resident_id_file')->store('resident-ids', 'public');
+
+                    if (!empty($resident->resident_id_file)) {
+                        Storage::disk('public')->delete($resident->resident_id_file);
+                    }
+
+                    $updateData['resident_id_file'] = $newFilePath;
+                }
+
+                $resident->update($updateData);
+
+                $this->logActivity('UPDATE_RESIDENT', "Updated resident details: {$resident->name} (ID: {$resident->user_id})");
+            });
+
+            return redirect()->route('dashboard-residents.residents')->with('success', 'Resident details updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to update resident ID ' . $id . ': ' . $e->getMessage());
+            return back()->with('error', 'Failed to update resident details. Please try again.')->withInput();
+        }
+    }
+
+    public function deleteResident($id)
+    {
+        $resident = User::where('role', 'resident')->where('user_id', $id)->firstOrFail();
+
+        try {
+            DB::transaction(function () use ($resident) {
+                $residentName = $resident->name;
+
+                if (!empty($resident->resident_id_file)) {
+                    Storage::disk('public')->delete($resident->resident_id_file);
+                }
+
+                $resident->delete();
+
+                $this->logActivity('DELETE_RESIDENT', "Deleted resident: {$residentName} (ID: {$resident->user_id})");
+            });
+
+            return redirect()->route('dashboard-residents.residents')->with('success', 'Resident deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to delete resident ID ' . $id . ': ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete resident. Please try again.');
+        }
+    }
+
+    public function viewResidentIdFile($id)
+    {
+        $resident = User::where('role', 'resident')->where('user_id', $id)->firstOrFail();
+
+        if (empty($resident->resident_id_file)) {
+            abort(404, 'No ID file uploaded for this resident.');
+        }
+
+        $rawPath = str_replace('\\', '/', trim($resident->resident_id_file));
+        $urlPath = parse_url($rawPath, PHP_URL_PATH) ?: $rawPath;
+        $filePath = ltrim($urlPath, '/');
+        $normalizedPath = preg_replace('/^(storage|public)\//i', '', $filePath);
+        $fileName = basename($normalizedPath);
+
+        $candidates = array_values(array_filter(array_unique([
+            $normalizedPath,
+            $filePath,
+            preg_replace('/^storage\//i', '', $filePath),
+            preg_replace('/^public\//i', '', $filePath),
+            $fileName ? 'resident-ids/' . $fileName : null,
+        ])));
+
+        $resolvedPath = null;
+        foreach ($candidates as $candidate) {
+            if (!empty($candidate) && Storage::disk('public')->exists($candidate)) {
+                $resolvedPath = $candidate;
+                break;
+            }
+        }
+
+        if (!$resolvedPath) {
+            abort(404, 'ID file not found.');
+        }
+
+        $fileContent = Storage::disk('public')->get($resolvedPath);
+        $extension = strtolower(pathinfo($resolvedPath, PATHINFO_EXTENSION));
+        $mimeMap = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'pdf' => 'application/pdf',
+        ];
+        $detectedMimeType = null;
+        if (class_exists('finfo')) {
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $detectedMimeType = $finfo->buffer($fileContent) ?: null;
+        }
+
+        $mimeType = $detectedMimeType ?: ($mimeMap[$extension] ?? 'application/octet-stream');
+        $filename = basename($resolvedPath);
+
+        return response($fileContent, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $filename . '"',
+        ]);
     }
 
     public function indigency()
@@ -302,10 +458,14 @@ class AdminController extends Controller
             'first_name' => 'required|string|max:150',
             'last_name' => 'required|string|max:150',
             'email' => 'required|email|unique:users,email',
+            'contact_number' => 'required|string|max:20',
             'password' => 'required|string|min:6',
+            'id_type' => 'required|string|max:100',
+            'resident_id_file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'birthdate' => 'required|date|before:today',
             'civil_status' => 'required|string|max:20',
             'purok' => 'required|string|max:100',
+            'building_no' => 'required|string|max:100',
             'full_address' => 'required|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
@@ -315,19 +475,25 @@ class AdminController extends Controller
         try {
             $age = Carbon::parse($request->birthdate)->age;
             $fullName = trim($request->first_name . ' ' . ($request->middle_name ?? '') . ' ' . $request->last_name . ' ' . ($request->suffix ?? ''));
+            $fullAddress = trim($request->building_no . ', ' . $request->purok . ', Bagacay, Dumaguete City');
+            $residentIdFilePath = $request->file('resident_id_file')->store('resident-ids', 'public');
 
-            DB::transaction(function () use ($request, $age, $fullName) {
+            DB::transaction(function () use ($request, $age, $fullName, $fullAddress, $residentIdFilePath) {
                 $user = User::create([
                     'name' => $fullName,
                     'email' => $request->email,
+                    'contact_number' => $request->contact_number,
                     'password' => $request->password,
                     'role' => 'resident',
                     'age' => $age,
                     'civil_status' => $request->civil_status,
+                    'id_type' => $request->id_type,
+                    'resident_id_file' => $residentIdFilePath,
                     'purok' => $request->purok,
+                    'building_no' => $request->building_no,
                     'barangay' => 'Bagacay',
                     'city' => 'Dumaguete City',
-                    'full_address' => $request->full_address,
+                    'full_address' => $fullAddress,
                     'latitude' => $request->latitude,
                     'longitude' => $request->longitude,
                     'is_indigent' => $request->cash_assistance_programs,
@@ -339,6 +505,9 @@ class AdminController extends Controller
 
             return redirect()->route('add-user.portal')->with('success', 'Resident registered successfully!');
         } catch (\Exception $e) {
+            if (isset($residentIdFilePath)) {
+                Storage::disk('public')->delete($residentIdFilePath);
+            }
             Log::error('Failed to register resident: ' . $e->getMessage());
             return back()->with('error', 'Failed to register resident. Please try again.')->withInput();
         }

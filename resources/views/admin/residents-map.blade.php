@@ -206,30 +206,30 @@
         });
     }
 
-    function getPurokPopupContent(purokName, program) {
-        const counts = purokProgramCounts[purokName] || {};
-        const total = purokCounts[purokName] || 0;
-        const programLabel = program !== 'all' ? (programLabels[program] || program) : null;
-        const programCount = program !== 'all' ? (counts[program] || 0) : null;
+    // function getPurokPopupContent(purokName, program) {
+    //     const counts = purokProgramCounts[purokName] || {};
+    //     const total = purokCounts[purokName] || 0;
+    //     const programLabel = program !== 'all' ? (programLabels[program] || program) : null;
+    //     const programCount = program !== 'all' ? (counts[program] || 0) : null;
 
-        let rows = '';
-        if (program !== 'all') {
-            rows = `<tr><td style="padding:2px 6px;color:#6b7280">${programLabel}</td><td style="padding:2px 6px;font-weight:700;color:#4f46e5">${programCount}</td></tr>`;
-        } else {
-            Object.entries(programLabels).forEach(([key, label]) => {
-                const c = counts[key] || 0;
-                if (c > 0) rows += `<tr><td style="padding:2px 6px;color:#6b7280">${label}</td><td style="padding:2px 6px;font-weight:700;color:#4f46e5">${c}</td></tr>`;
-            });
-        }
+    //     let rows = '';
+    //     if (program !== 'all') {
+    //         rows = `<tr><td style="padding:2px 6px;color:#6b7280">${programLabel}</td><td style="padding:2px 6px;font-weight:700;color:#4f46e5">${programCount}</td></tr>`;
+    //     } else {
+    //         Object.entries(programLabels).forEach(([key, label]) => {
+    //             const c = counts[key] || 0;
+    //             if (c > 0) rows += `<tr><td style="padding:2px 6px;color:#6b7280">${label}</td><td style="padding:2px 6px;font-weight:700;color:#4f46e5">${c}</td></tr>`;
+    //         });
+    //     }
 
-        return `<div style="min-width:160px">
-            <div style="font-weight:700;font-size:13px;margin-bottom:6px;color:#1e1b4b">📍 Purok ${purokName}</div>
-            <table style="width:100%;border-collapse:collapse">
-                ${rows || '<tr><td colspan="2" style="color:#9ca3af;font-size:12px">No data</td></tr>'}
-            </table>
-            <div style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;font-size:11px;color:#6b7280">Total members: <strong>${total}</strong></div>
-        </div>`;
-    }
+    //     return `<div style="min-width:160px">
+    //         <div style="font-weight:700;font-size:13px;margin-bottom:6px;color:#1e1b4b">📍 Purok ${purokName}</div>
+    //         <table style="width:100%;border-collapse:collapse">
+    //             ${rows || '<tr><td colspan="2" style="color:#9ca3af;font-size:12px">No data</td></tr>'}
+    //         </table>
+    //         <div style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;font-size:11px;color:#6b7280">Total members: <strong>${total}</strong></div>
+    //     </div>`;
+    // }
 
     function updatePurokMarkers() {
         purokMarkers.forEach(({ marker, purokName }) => {

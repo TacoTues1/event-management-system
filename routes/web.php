@@ -110,6 +110,18 @@ Route::get('/residents', [AdminController::class, 'residentsList'])
     ->middleware(['auth', 'admin'])
     ->name('dashboard-residents.residents');
 
+Route::get('/residents/{id}/id-file', [AdminController::class, 'viewResidentIdFile'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.residents.id-file');
+
+Route::put('/residents/{id}', [AdminController::class, 'updateResident'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.residents.update');
+
+Route::delete('/residents/{id}', [AdminController::class, 'deleteResident'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.residents.delete');
+
 Route::get('/document-requests', [AdminController::class, 'documentRequests'])
     ->middleware(['auth', 'admin'])
     ->name('dashboard.document-requests');

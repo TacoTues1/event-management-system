@@ -127,11 +127,13 @@
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Purok</label>
                     <select id="purok" name="purok" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                        <option value="Purok Mahigugma-on" {{ Auth::user()->purok == 'Purok Mahigugma-on' ? 'selected' : '' }}>Purok Mahigugma-on</option>
-                        <option value="Purok Gumamela" {{ Auth::user()->purok == 'Purok Gumamela' ? 'selected' : '' }}>Purok Gumamela</option>
-                        <option value="Purok Santol" {{ Auth::user()->purok == 'Purok Santol' ? 'selected' : '' }}>Purok Santol</option>
-                        <option value="Purok Cebasca" {{ Auth::user()->purok == 'Purok Cebasca' ? 'selected' : '' }}>Purok Cebasca</option>
-                        <option value="Purok Fuente" {{ Auth::user()->purok == 'Purok Fuente' ? 'selected' : '' }}>Purok Fuente</option>
+                        <option value="">Select Purok</option>
+                        @php
+                            $selectedPurok = preg_replace('/^Purok\s+/i', '', (string) Auth::user()->purok);
+                        @endphp
+                        @foreach(config('puroks', []) as $name => $coords)
+                            <option value="{{ $name }}" {{ $selectedPurok === $name ? 'selected' : '' }}>{{ $name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 
