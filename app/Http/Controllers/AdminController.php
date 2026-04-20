@@ -136,7 +136,7 @@ class AdminController extends Controller
             'age' => 'nullable|integer|min:0|max:150',
             'civil_status' => 'required|string|max:20',
             'id_type' => 'required|string|max:100',
-            'resident_id_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'resident_id_file' => 'nullable|file|mimes:jpg,jpeg,png,webp,avif,heic,heif,pdf|max:5120',
             'purok' => 'required|string|max:100',
             'building_no' => 'required|string|max:100',
             'barangay' => 'required|string|max:100',
@@ -261,6 +261,9 @@ class AdminController extends Controller
             'png' => 'image/png',
             'gif' => 'image/gif',
             'webp' => 'image/webp',
+            'avif' => 'image/avif',
+            'heic' => 'image/heic',
+            'heif' => 'image/heif',
             'pdf' => 'application/pdf',
         ];
         $detectedMimeType = null;
@@ -461,7 +464,7 @@ class AdminController extends Controller
             'contact_number' => 'required|string|max:20',
             'password' => 'required|string|min:6',
             'id_type' => 'required|string|max:100',
-            'resident_id_file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'resident_id_file' => 'required|file|mimes:jpg,jpeg,png,webp,avif,heic,heif,pdf|max:5120',
             'birthdate' => 'required|date|before:today',
             'civil_status' => 'required|string|max:20',
             'purok' => 'required|string|max:100',

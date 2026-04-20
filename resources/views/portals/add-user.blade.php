@@ -106,9 +106,9 @@
         <!-- Resident ID File -->
         <div>
             <label class="block text-sm font-medium text-gray-700">Resident ID File</label>
-            <input type="file" name="resident_id_file" accept=".jpg,.jpeg,.png,.pdf"
+                 <input type="file" name="resident_id_file" accept=".jpg,.jpeg,.png,.webp,.avif,.heic,.heif,.pdf,image/*,application/pdf"
                    class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" required>
-            <p class="text-xs text-gray-500 mt-2">Accepted files: JPG, PNG, PDF. Max size: 5MB.</p>
+                 <p class="text-xs text-gray-500 mt-2">Accepted files: JPG, JPEG, PNG, WEBP, AVIF, HEIC, HEIF, PDF. Max size: 5MB.</p>
         </div>
 
         <!-- Birthdate -->

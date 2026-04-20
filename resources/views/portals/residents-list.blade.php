@@ -261,7 +261,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Resident ID File (Optional)</label>
-                    <input type="file" name="resident_id_file" id="edit_resident_id_file" accept=".jpg,.jpeg,.png,.pdf" class="w-full border rounded px-3 py-2">
+                    <input type="file" name="resident_id_file" id="edit_resident_id_file" accept=".jpg,.jpeg,.png,.webp,.avif,.heic,.heif,.pdf,image/*,application/pdf" class="w-full border rounded px-3 py-2">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Purok</label>

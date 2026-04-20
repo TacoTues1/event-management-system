@@ -20,7 +20,7 @@ class SignupController extends Controller
             'contact_number' => 'required|string|max:20',
             'password' => 'required|string|min:6',
             'id_type' => 'required|string|max:100',
-            'resident_id_file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'resident_id_file' => 'required|file|mimes:jpg,jpeg,png,webp,avif,heic,heif,pdf|max:5120',
             'birthdate' => 'required|date|before:today',
             'civil_status' => 'required|string|max:20',
             'purok' => 'required|string|max:100',
@@ -32,6 +32,7 @@ class SignupController extends Controller
         ], [
             'email.unique' => 'This email is already registered.',
             'birthdate.before' => 'Birthdate must be a past date.',
+            'resident_id_file.mimes' => 'Supported file types: JPG, JPEG, PNG, WEBP, AVIF, HEIC, HEIF, PDF.',
         ]);
 
         try {

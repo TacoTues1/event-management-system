@@ -122,8 +122,8 @@
             </div>
             <div>
                 <label for="resident_id_file" class="block text-sm font-medium text-slate-700 mb-2">Resident ID File</label>
-                <input type="file" name="resident_id_file" id="resident_id_file" accept=".jpg,.jpeg,.png,.pdf" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-2.5 text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-white hover:file:bg-blue-700" required>
-                <p class="text-xs text-slate-500 mt-2">Accepted files: JPG, PNG, PDF. Max size: 5MB.</p>
+                <input type="file" name="resident_id_file" id="resident_id_file" accept=".jpg,.jpeg,.png,.webp,.avif,.heic,.heif,.pdf,image/*,application/pdf" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-2.5 text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-white hover:file:bg-blue-700" required>
+                <p class="text-xs text-slate-500 mt-2">Accepted files: JPG, JPEG, PNG, WEBP, AVIF, HEIC, HEIF, PDF. Max size: 5MB.</p>
             </div>
         </div>
 
