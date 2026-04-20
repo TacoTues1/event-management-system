@@ -109,6 +109,7 @@
                 <label for="id_type" class="block text-sm font-medium text-slate-700 mb-2">ID Type</label>
                 <select name="id_type" id="id_type" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
                     <option value="">Select ID Type</option>
+                    <option value="National ID">National ID</option>
                     <option value="Barangay ID">Barangay ID</option>
                     <option value="Senior Citizen ID">Senior Citizen ID</option>
                     <option value="UMID">UMID</option>
