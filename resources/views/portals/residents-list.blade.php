@@ -72,11 +72,10 @@
                                 <button onclick='openEditResidentModal(@json($resident))' class="inline-flex h-10 w-full items-center justify-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold leading-none text-amber-700 transition hover:bg-amber-100 sm:text-sm">
                                     Edit Details
                                 </button>
-                                <form action="{{ route('admin.residents.delete', $resident->user_id) }}" method="POST" onsubmit="return confirm('Delete this resident? This action cannot be undone.');" class="m-0 w-full">
+                                <form action="{{ route('admin.users.archive', $resident->user_id) }}" method="POST" onsubmit="return confirm('Archive this resident? They will be moved to the archive list.');" class="m-0 w-full">
                                     @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="inline-flex h-10 w-full items-center justify-center rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold leading-none text-red-700 transition hover:bg-red-100 sm:text-sm">
-                                        Delete
+                                    <button type="submit" class="inline-flex h-10 w-full items-center justify-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-semibold leading-none text-gray-700 transition hover:bg-gray-100 sm:text-sm">
+                                        Archive
                                     </button>
                                 </form>
                             </div>

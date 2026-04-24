@@ -29,10 +29,10 @@ class AdminController extends Controller
         $thisYear = Carbon::now()->startOfYear();
         
         // Total counts
-        $totalUsers = User::where('role', '!=', 'admin')->count();
+        $totalUsers = User::where('role', '!=', 'admin')->where('is_archived', false)->count();
         $totalRequests = DocumentRequest::count();
         $totalEvents = Event::count();
-        $totalAdmins = User::where('role', 'admin')->count();
+        $totalAdmins = User::where('role', 'admin')->where('is_archived', false)->count();
         
         // Request statistics
         $pendingRequests = DocumentRequest::where('status', 'pending')->count();
@@ -42,6 +42,7 @@ class AdminController extends Controller
         // Monthly statistics
         $monthlyRequests = DocumentRequest::where('created_at', '>=', $thisMonth)->count();
         $monthlyUsers = User::where('role', '!=', 'admin')
+                           ->where('is_archived', false)
                            ->where('created_at', '>=', $thisMonth)
                            ->count();
         
@@ -58,12 +59,14 @@ class AdminController extends Controller
                                         ->get();
         
         $recentUsers = User::where('role', '!=', 'admin')
+                          ->where('is_archived', false)
                           ->orderBy('created_at', 'desc')
                           ->limit(5)
                           ->get();
         
         // Purok distribution
         $purokDistribution = User::where('role', '!=', 'admin')
+                                ->where('is_archived', false)
                                 ->whereNotNull('purok')
                                 ->selectRaw('purok, COUNT(*) as count')
                                 ->groupBy('purok')
@@ -79,6 +82,7 @@ class AdminController extends Controller
         
         // Residents with cash assistance
         $residentsWithAssistance = User::where('role', '!=', 'admin')
+                                ->where('is_archived', false)
                                 ->where('is_indigent', '!=', 'N/A')
                                 ->whereNotNull('is_indigent')
                                 ->select('name', 'purok', 'is_indigent')
@@ -87,6 +91,7 @@ class AdminController extends Controller
 
         // Assistance members per purok (for purok detail modal)
         $assistanceByPurok = User::where('role', '!=', 'admin')
+                                ->where('is_archived', false)
                                 ->whereNotNull('purok')
                                 ->whereNotNull('is_indigent')
                                 ->where('is_indigent', '!=', 'N/A')
@@ -109,7 +114,7 @@ class AdminController extends Controller
      */
     public function residentsList(Request $request)
     {
-        $query = User::where('role', 'resident');
+        $query = User::where('role', 'resident')->where('is_archived', false);
 
         // Search by name or email
         if ($request->filled('search')) {
@@ -195,28 +200,84 @@ class AdminController extends Controller
         }
     }
 
-    public function deleteResident($id)
+    public function archiveUser($id)
     {
-        $resident = User::where('role', 'resident')->where('user_id', $id)->firstOrFail();
+        $user = User::where('user_id', $id)->firstOrFail();
 
         try {
-            DB::transaction(function () use ($resident) {
-                $residentName = $resident->name;
+            DB::transaction(function () use ($user) {
+                $userName = $user->name;
+                $userRole = $user->role;
+                
+                $user->update(['is_archived' => true]);
 
-                if (!empty($resident->resident_id_file)) {
-                    Storage::disk('public')->delete($resident->resident_id_file);
-                }
-
-                $resident->delete();
-
-                $this->logActivity('DELETE_RESIDENT', "Deleted resident: {$residentName} (ID: {$resident->user_id})");
+                $this->logActivity('ARCHIVE_USER', "Archived {$userRole}: {$userName} (ID: {$user->user_id})");
             });
 
-            return redirect()->route('dashboard-residents.residents')->with('success', 'Resident deleted successfully.');
+            return redirect()->back()->with('success', 'User archived successfully.');
         } catch (\Exception $e) {
-            Log::error('Failed to delete resident ID ' . $id . ': ' . $e->getMessage());
-            return back()->with('error', 'Failed to delete resident. Please try again.');
+            Log::error('Failed to archive user ID ' . $id . ': ' . $e->getMessage());
+            return back()->with('error', 'Failed to archive user. Please try again.');
         }
+    }
+
+    public function restoreUser($id)
+    {
+        $user = User::where('user_id', $id)->firstOrFail();
+
+        try {
+            DB::transaction(function () use ($user) {
+                $userName = $user->name;
+                $userRole = $user->role;
+                
+                $user->update(['is_archived' => false]);
+
+                $this->logActivity('RESTORE_USER', "Restored {$userRole}: {$userName} (ID: {$user->user_id})");
+            });
+
+            return redirect()->back()->with('success', 'User restored successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to restore user ID ' . $id . ': ' . $e->getMessage());
+            return back()->with('error', 'Failed to restore user. Please try again.');
+        }
+    }
+
+    public function adminsList(Request $request)
+    {
+        $query = User::where('role', 'admin')->where('is_archived', false);
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $admins = $query->orderBy('name')->get();
+
+        return view('admin.admins-list', compact('admins'));
+    }
+
+    public function archiveList(Request $request)
+    {
+        $query = User::where('is_archived', true);
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $archivedUsers = $query->orderBy('updated_at', 'desc')->get();
+
+        return view('admin.archive-list', compact('archivedUsers'));
+    }
+
+    public function deleteResident($id)
+    {
+        // Keeping this for compatibility if needed, but routing will likely change to archiveUser
+        return $this->archiveUser($id);
     }
 
     public function viewResidentIdFile($id)
@@ -417,16 +478,19 @@ class AdminController extends Controller
 
     public function residentsWithGeoTag()
     {
-        $residents = User::where('role', '!=', 'admin')->paginate(10);
+        $residents = User::where('role', '!=', 'admin')->where('is_archived', false)->paginate(10);
         $allResidents = User::where('role', '!=', 'admin')
+            ->where('is_archived', false)
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->get(['name', 'purok', 'full_address', 'latitude', 'longitude', 'is_indigent', 'age', 'civil_status']);
 
         $allResidentsForModal = User::where('role', '!=', 'admin')
+            ->where('is_archived', false)
             ->get(['name', 'purok', 'full_address', 'is_indigent', 'age', 'civil_status']);
 
         $programCounts = User::where('role', '!=', 'admin')
+            ->where('is_archived', false)
             ->whereNotNull('is_indigent')
             ->where('is_indigent', '!=', 'N/A')
             ->selectRaw('is_indigent, COUNT(*) as count')
@@ -434,6 +498,7 @@ class AdminController extends Controller
             ->pluck('count', 'is_indigent');
 
         $purokCounts = User::where('role', '!=', 'admin')
+            ->where('is_archived', false)
             ->whereNotNull('purok')
             ->selectRaw('purok, COUNT(*) as count')
             ->groupBy('purok')
@@ -443,6 +508,7 @@ class AdminController extends Controller
             ]);
 
         $purokProgramCounts = User::where('role', '!=', 'admin')
+            ->where('is_archived', false)
             ->whereNotNull('purok')
             ->whereNotNull('is_indigent')
             ->where('is_indigent', '!=', 'N/A')

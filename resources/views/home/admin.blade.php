@@ -143,6 +143,16 @@
                     <i data-feather="user-plus" class="w-4 h-4"></i>
                     <span>Create Admin</span>
                 </a>
+
+                <a href="{{ route('admin.admins-list') }}" class="flex items-center gap-3 py-2 px-4 rounded-xl text-sm {{ request()->routeIs('admin.admins-list') ? 'bg-blue-100 text-blue-700' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700' }} transition-all duration-200">
+                    <i data-feather="users" class="w-4 h-4"></i>
+                    <span>Admin List</span>
+                </a>
+
+                <a href="{{ route('admin.archive') }}" class="flex items-center gap-3 py-2 px-4 rounded-xl text-sm {{ request()->routeIs('admin.archive') ? 'bg-blue-100 text-blue-700' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700' }} transition-all duration-200">
+                    <i data-feather="archive" class="w-4 h-4"></i>
+                    <span>Archive List</span>
+                </a>
             </div>
         </div>
         </div>
@@ -286,7 +296,7 @@
                     icon.classList.add('rotate-180');
                 } else {
                     menu.classList.add('max-h-0');
-                    menu.classList.remove('max-h-40');
+                    menu.classList.remove('max-h-60');
                     icon.classList.remove('rotate-180');
                 }
             }

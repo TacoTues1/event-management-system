@@ -40,6 +40,7 @@ class User extends Authenticatable
         'is_indigent',
         'purpose',
         'date_issued',
+        'is_archived',
         'created_at',
     ];
 

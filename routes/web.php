@@ -118,9 +118,21 @@ Route::put('/residents/{id}', [AdminController::class, 'updateResident'])
     ->middleware(['auth', 'admin'])
     ->name('admin.residents.update');
 
-Route::delete('/residents/{id}', [AdminController::class, 'deleteResident'])
+Route::delete('/residents/{id}', [AdminController::class, 'archiveUser'])
     ->middleware(['auth', 'admin'])
     ->name('admin.residents.delete');
+
+Route::post('/users/{id}/archive', [AdminController::class, 'archiveUser'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.users.archive');
+
+Route::post('/users/{id}/restore', [AdminController::class, 'restoreUser'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.users.restore');
+
+Route::get('/archived-users', [AdminController::class, 'archiveList'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.archive');
 
 Route::get('/document-requests', [AdminController::class, 'documentRequests'])
     ->middleware(['auth', 'admin'])
@@ -155,6 +167,10 @@ Route::get('/create-admin', [AdminController::class, 'createAdminForm'])
 Route::post('/create-admin', [AdminController::class, 'createAdmin'])
     ->middleware(['auth', 'admin'])
     ->name('admin.create-admin.store');
+
+Route::get('/admins', [AdminController::class, 'adminsList'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.admins-list');
 
 // Residents Geo-tagging
 Route::get('/residents-map', [AdminController::class, 'residentsWithGeoTag'])
