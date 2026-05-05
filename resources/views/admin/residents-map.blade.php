@@ -196,6 +196,28 @@
         });
     }
 
+    function toRadians(degrees) {
+        return degrees * (Math.PI / 180);
+    }
+
+    function offsetLatLng(baseLat, baseLng, index, total) {
+        if (total <= 1) {
+            return [baseLat, baseLng];
+        }
+
+        // Spread markers around the original point so each resident stays visible.
+        const angle = (index / total) * (2 * Math.PI);
+        const radiusMeters = 12;
+        const earthRadiusMeters = 6378137;
+
+        const dLat = (radiusMeters * Math.sin(angle)) / earthRadiusMeters;
+        const dLng = (radiusMeters * Math.cos(angle)) / (earthRadiusMeters * Math.cos(toRadians(baseLat)));
+
+        const lat = baseLat + (dLat * 180 / Math.PI);
+        const lng = baseLng + (dLng * 180 / Math.PI);
+        return [lat, lng];
+    }
+
     function initResidentsMap() {
         const bagacay = [9.300472, 123.293472];
         
@@ -207,12 +229,32 @@
         
         const residents = JSON.parse('{!! json_encode($allResidents) !!}');
         
+        const coordCounts = {};
         residents.forEach(resident => {
             if (resident.latitude && resident.longitude) {
+                const baseLat = parseFloat(resident.latitude);
+                const baseLng = parseFloat(resident.longitude);
+                const key = `${baseLat.toFixed(6)},${baseLng.toFixed(6)}`;
+                coordCounts[key] = (coordCounts[key] || 0) + 1;
+            }
+        });
+
+        const coordIndices = {};
+
+        residents.forEach(resident => {
+            if (resident.latitude && resident.longitude) {
+                const baseLat = parseFloat(resident.latitude);
+                const baseLng = parseFloat(resident.longitude);
+                const key = `${baseLat.toFixed(6)},${baseLng.toFixed(6)}`;
+                const totalAtPoint = coordCounts[key] || 1;
+                const pointIndex = coordIndices[key] || 0;
+                coordIndices[key] = pointIndex + 1;
+
+                const displayLatLng = offsetLatLng(baseLat, baseLng, pointIndex, totalAtPoint);
                 const program = resident.is_indigent ?? 'Unknown';
                 const color = programColors[program] || '#6b7280';
-                
-                const marker = L.marker([parseFloat(resident.latitude), parseFloat(resident.longitude)], {
+
+                const marker = L.marker(displayLatLng, {
                     icon: createColoredIcon(color)
                 })
                     .addTo(map)
@@ -226,7 +268,14 @@
                         </div>
                     `);
                 
-                markers.push({ marker, resident, program, purok: resident.purok });
+                markers.push({
+                    marker,
+                    resident,
+                    program,
+                    purok: resident.purok,
+                    originalLat: baseLat,
+                    originalLng: baseLng
+                });
             }
         });
         
@@ -415,8 +464,8 @@
         map.setView([parseFloat(lat), parseFloat(lng)], 18);
         
         const found = markers.find(m => 
-            Math.abs(m.marker.getLatLng().lat - parseFloat(lat)) < 0.0001 && 
-            Math.abs(m.marker.getLatLng().lng - parseFloat(lng)) < 0.0001
+            Math.abs(m.originalLat - parseFloat(lat)) < 0.000001 && 
+            Math.abs(m.originalLng - parseFloat(lng)) < 0.000001
         );
         
         if (found) found.marker.openPopup();
