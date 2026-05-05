@@ -38,6 +38,9 @@
         <div>
             <label class="block text-sm font-medium text-gray-700">First Name</label>
             <input type="text" name="first_name" value="{{ old('first_name') }}"
+                pattern="^[A-Z].*"
+                maxlength="150"
+                title="First name must start with a capital letter."
                 class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" required>
         </div>
 
@@ -45,6 +48,9 @@
         <div>
             <label class="block text-sm font-medium text-gray-700">Middle Name</label>
             <input type="text" name="middle_name" value="{{ old('middle_name') }}"
+                pattern="^[A-Z].*"
+                maxlength="150"
+                title="Middle name must start with a capital letter."
                 class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
         </div>
 
@@ -52,6 +58,9 @@
         <div>
             <label class="block text-sm font-medium text-gray-700">Last Name</label>
             <input type="text" name="last_name" value="{{ old('last_name') }}"
+                pattern="^[A-Z].*"
+                maxlength="150"
+                title="Last name must start with a capital letter."
                 class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" required>
         </div>
 
@@ -74,6 +83,11 @@
         <div>
             <label class="block text-sm font-medium text-gray-700">Contact Number</label>
             <input type="tel" name="contact_number" value="{{ old('contact_number') }}"
+                   pattern="^09\d{9}$"
+                   maxlength="11"
+                   inputmode="numeric"
+                   autocomplete="tel"
+                   title="Contact number must be in the format 09XXXXXXXXX."
                    class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" required>
         </div>
 
@@ -175,9 +189,6 @@
         <div class="md:col-span-2 lg:col-span-3 bg-blue-50 rounded-lg p-4 border border-blue-200">
             <div class="flex items-center justify-between mb-3">
                 <label class="block text-sm font-medium text-gray-700">Location (Geo-tagging)</label>
-                <button type="button" onclick="getCurrentLocation()" class="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700">
-                    Get Current Location
-                </button>
             </div>
             <div id="map" class="w-full h-64 bg-gray-200 rounded-md mb-3 relative z-0"></div>
             <div class="grid grid-cols-2 gap-3">
@@ -522,6 +533,68 @@
             residentForm.addEventListener('input', saveResidentFormDraft);
             residentForm.addEventListener('change', saveResidentFormDraft);
 
+            // Auto-format names (capitalize first letter while typing).
+            ['first_name', 'middle_name', 'last_name'].forEach((fieldName) => {
+                const input = residentForm.querySelector(`input[name="${fieldName}"]`);
+                if (!input) return;
+
+                input.addEventListener('input', () => {
+                    const raw = String(input.value || '');
+                    const trimmed = raw.replace(/^\s+/, '');
+                    if (trimmed.length === 0) {
+                        input.value = '';
+                        return;
+                    }
+
+                    input.value = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+                });
+            });
+
+            // Auto-format contact number to: 09XXXXXXXXX (11 digits).
+            const contactInput = residentForm.querySelector('input[name="contact_number"]');
+            if (contactInput) {
+                contactInput.addEventListener('input', () => {
+                    let digits = String(contactInput.value || '').replace(/\D/g, '');
+                    if (digits.length === 0) {
+                        contactInput.value = '';
+                        return;
+                    }
+
+                    if (digits.length < 2) {
+                        // Keep partial input until user types the 2nd digit.
+                        contactInput.value = digits;
+                        return;
+                    }
+
+                    const lastNine = digits.startsWith('09') ? digits.slice(2) : digits.slice(-9);
+                    const rest = lastNine.slice(0, 9);
+                    contactInput.value = '09' + rest;
+                });
+            }
+
+            // Also normalize any pre-filled (old/draft/restored) values.
+            ['first_name', 'middle_name', 'last_name'].forEach((fieldName) => {
+                const input = residentForm.querySelector(`input[name="${fieldName}"]`);
+                if (!input) return;
+                const trimmed = String(input.value || '').replace(/^\s+/, '');
+                if (trimmed.length === 0) return;
+                input.value = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+            });
+
+            const contactInputOnLoad = residentForm.querySelector('input[name="contact_number"]');
+            if (contactInputOnLoad) {
+                let digits = String(contactInputOnLoad.value || '').replace(/\D/g, '');
+                if (digits.length === 0) {
+                    contactInputOnLoad.value = '';
+                } else if (digits.length < 2) {
+                    contactInputOnLoad.value = digits;
+                } else {
+                    const lastNine = digits.startsWith('09') ? digits.slice(2) : digits.slice(-9);
+                    const rest = lastNine.slice(0, 9);
+                    contactInputOnLoad.value = '09' + rest;
+                }
+            }
+
             residentForm.addEventListener('submit', async function(event) {
                 event.preventDefault();
 
@@ -531,6 +604,29 @@
 
                 ensureFixedAddressValues();
                 updateFullAddressPreview();
+
+                // Normalize contact number digits-only for the browser pattern check.
+                const contactInput = residentForm.querySelector('input[name="contact_number"]');
+                if (contactInput) {
+                    contactInput.value = String(contactInput.value || '').replace(/\D/g, '');
+                }
+
+                // Normalize name fields so the browser pattern check passes.
+                ['first_name', 'middle_name', 'last_name'].forEach((fieldName) => {
+                    const input = residentForm.querySelector(`input[name="${fieldName}"]`);
+                    if (!input) return;
+                    const raw = String(input.value || '').trim();
+                    if (!raw) return;
+                    input.value = raw.charAt(0).toUpperCase() + raw.slice(1);
+                });
+
+                // Ensure HTML5 validation rules run before we proceed with compression.
+                // (This submit handler prevents the default browser submit.)
+                if (!residentForm.checkValidity()) {
+                    residentForm.reportValidity();
+                    return;
+                }
+
                 saveResidentFormDraft();
 
                 const fileReady = await prepareResidentIdFileForSubmit(residentForm);

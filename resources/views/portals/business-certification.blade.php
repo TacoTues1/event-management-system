@@ -81,17 +81,12 @@
     </div>
     
     <!-- RIGHT PANEL - PREVIEW -->
-    <div class="w-full lg:w-2/3">
-        <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h3 class="text-xl font-bold text-slate-800 mb-6">Certificate Preview</h3>
+    <div class="print-root w-full lg:w-2/3">
+        <div class="print-card bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="print-hide text-xl font-bold text-slate-800 mb-6">Certificate Preview</h3>
             
             <!-- CERTIFICATE PREVIEW -->
-            <div class="bond-paper bg-white border-2 border-slate-200 p-12 mx-auto relative" style="width: 600px; min-height: 800px; transform: scale(0.8); transform-origin: top;">
-                
-                <!-- WATERMARK -->
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
-                    <img src="{{ asset('images/bgylogo.png') }}" class="w-[400px]" alt="Watermark">
-                </div>
+            <div class="bond-paper bg-white mx-auto relative">
                 
                 <!-- HEADER -->
                 <div class="relative text-center mb-6">
@@ -195,52 +190,115 @@
 </script>
 
 <style>
-@media print {
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    
-    body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-    }
-    
-    body * { 
-        visibility: hidden; 
-    }
-    
-    .bond-paper, .bond-paper * { 
-        visibility: visible; 
-    }
-    
-    .bond-paper {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 80px;
-        border: none;
-        font-size: 18px;
-        line-height: 1.6;
-        transform: none !important;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    
-    @page { 
-        size: 8.5in 11in;
-        margin: 0;
-    }
+.bond-paper {
+    width: 8.5in;
+    max-width: 100%;
+    min-height: 11in;
+    margin: 0 auto;
+    padding: 1in;
+    border: 1px solid #e2e8f0;
+    background: white;
+    position: relative;
+    transform: scale(0.72);
+    transform-origin: top center;
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
 }
+
+.bond-paper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("{{ asset('images/bgylogo.png') }}");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 50% auto;
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.bond-paper > * {
+    position: relative;
+    z-index: 1;
+}
+
+@media print {
+            @page {
+                size: letter portrait;
+                margin: 0;
+            }
+
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                min-height: 100% !important;
+                background: white !important;
+            }
+
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            *, *::before, *::after {
+                box-sizing: border-box !important;
+            }
+
+            .print-hide {
+                display: none !important;
+            }
+
+            .print-root,
+            .print-card {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                background: transparent !important;
+                overflow: visible !important;
+            }
+
+            .bond-paper {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                isolation: isolate !important;
+                width: 8.5in !important;
+                height: 11in !important;
+                margin: 0 !important;
+                padding: 0.45in 0.7in 0.7in !important;
+                border: none !important;
+                box-shadow: none !important;
+                transform: none !important;
+                background: white !important;
+                display: block !important;
+                overflow: hidden !important;
+            }
+
+            .bond-paper::before,
+            .bond-paper > .absolute.inset-0 {
+                z-index: 0 !important;
+            }
+
+            .bond-paper > :not(.absolute.inset-0) {
+                position: relative !important;
+                z-index: 1 !important;
+            }
+
+            .bond-paper::before {
+                background-size: 50% auto !important;
+                background-position: center !important;
+            }
+
+            .bond-paper img {
+                max-width: 100%;
+                height: auto;
+            }
+        }
 </style>
 
 @endsection

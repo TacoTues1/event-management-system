@@ -52,7 +52,7 @@
                     <button onclick="filterByPurok('all')" class="purok-btn px-4 py-2 rounded-lg font-medium transition-all bg-indigo-600 text-white" data-purok="all">
                         All Puroks
                     </button>
-                    @foreach(config('puroks') as $name => $coords)
+                    @foreach(\Config::get('puroks') as $name => $coords)
                     <button onclick="filterByPurok('{{ $name }}')" class="purok-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-indigo-500 hover:text-white" data-purok="{{ $name }}">
                         {{ $name }}
                         @if(($purokCounts[$name] ?? 0) > 0)
@@ -157,10 +157,10 @@
 </div>
 
 <script>
-    const purokCounts = @json($purokCounts);
-    const purokProgramCounts = @json($purokProgramCounts);
-    const purokCoords = @json(config('puroks'));
-    const allResidentsForModal = @json($allResidentsForModal);
+    const purokCounts = JSON.parse('{!! json_encode($purokCounts) !!}');
+    const purokProgramCounts = JSON.parse('{!! json_encode($purokProgramCounts) !!}');
+    const purokCoords = JSON.parse('{!! json_encode(\Config::get("puroks")) !!}');
+    const allResidentsForModal = JSON.parse('{!! json_encode($allResidentsForModal) !!}');
 
     const programLabels = {
         'Pantawid Pamilyang Pilipino Program (4Ps)': 'Pantawid',
@@ -169,10 +169,12 @@
         'Assistance to Individuals in Crisis Situations (AICS)': 'AICS'
     };
 
-    let map, markers = [], purokMarkers = [];
+    let map, markers = [];
     let currentProgramFilter = 'all';
     let currentPurokFilter = 'all';
     
+    const PUROK_FOCUS_ZOOM = 16;
+
     const programColors = {
         'Pantawid Pamilyang Pilipino Program (4Ps)': '#ef4444',
         'Targeted Cash Transfers (TCT)': '#3b82f6',
@@ -180,9 +182,6 @@
         'Assistance to Individuals in Crisis Situations (AICS)': '#eab308'
     };
 
-    // 4 fixed pinned puroks
-    const pinnedPuroks = ['Fuente', 'Kalipay', 'Cebasca', 'Riverside'];
-    
     function createColoredIcon(color) {
         return L.divIcon({
             className: 'custom-marker',
@@ -197,72 +196,6 @@
         });
     }
 
-    function createPurokPinIcon(label) {
-        return L.divIcon({
-            className: '',
-            html: `<div style="background:#4f46e5;color:#fff;font-size:11px;font-weight:700;padding:4px 8px;border-radius:8px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff">${label}</div>`,
-            iconAnchor: [0, 0],
-            popupAnchor: [0, -10]
-        });
-    }
-
-    // function getPurokPopupContent(purokName, program) {
-    //     const counts = purokProgramCounts[purokName] || {};
-    //     const total = purokCounts[purokName] || 0;
-    //     const programLabel = program !== 'all' ? (programLabels[program] || program) : null;
-    //     const programCount = program !== 'all' ? (counts[program] || 0) : null;
-
-    //     let rows = '';
-    //     if (program !== 'all') {
-    //         rows = `<tr><td style="padding:2px 6px;color:#6b7280">${programLabel}</td><td style="padding:2px 6px;font-weight:700;color:#4f46e5">${programCount}</td></tr>`;
-    //     } else {
-    //         Object.entries(programLabels).forEach(([key, label]) => {
-    //             const c = counts[key] || 0;
-    //             if (c > 0) rows += `<tr><td style="padding:2px 6px;color:#6b7280">${label}</td><td style="padding:2px 6px;font-weight:700;color:#4f46e5">${c}</td></tr>`;
-    //         });
-    //     }
-
-    //     return `<div style="min-width:160px">
-    //         <div style="font-weight:700;font-size:13px;margin-bottom:6px;color:#1e1b4b">📍 Purok ${purokName}</div>
-    //         <table style="width:100%;border-collapse:collapse">
-    //             ${rows || '<tr><td colspan="2" style="color:#9ca3af;font-size:12px">No data</td></tr>'}
-    //         </table>
-    //         <div style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;font-size:11px;color:#6b7280">Total members: <strong>${total}</strong></div>
-    //     </div>`;
-    // }
-
-    function updatePurokMarkers() {
-        purokMarkers.forEach(({ marker, purokName }) => {
-            marker.setPopupContent(getPurokPopupContent(purokName, currentProgramFilter));
-
-            const counts = purokProgramCounts[purokName] || {};
-            const count = currentProgramFilter !== 'all'
-                ? (counts[currentProgramFilter] || 0)
-                : (purokCounts[purokName] || 0);
-            const label = currentProgramFilter !== 'all'
-                ? `${purokName}: ${count}`
-                : `${purokName} (${count})`;
-            marker.setIcon(createPurokPinIcon(label));
-        });
-    }
-
-    function initPurokPins() {
-        pinnedPuroks.forEach(purokName => {
-            const coords = purokCoords[purokName];
-            if (!coords) return;
-            const count = purokCounts[purokName] || 0;
-            const marker = L.marker([coords.lat, coords.lng], {
-                icon: createPurokPinIcon(`${purokName} (${count})`),
-                zIndexOffset: 1000
-            })
-            .addTo(map)
-            .bindPopup(getPurokPopupContent(purokName, 'all'));
-
-            marker.on('click', () => filterByPurok(purokName));
-            purokMarkers.push({ marker, purokName });
-        });
-    }
-    
     function initResidentsMap() {
         const bagacay = [9.300472, 123.293472];
         
@@ -272,7 +205,7 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
         
-        const residents = @json($allResidents);
+        const residents = JSON.parse('{!! json_encode($allResidents) !!}');
         
         residents.forEach(resident => {
             if (resident.latitude && resident.longitude) {
@@ -302,7 +235,6 @@
             map.fitBounds(group.getBounds().pad(0.1));
         }
 
-        initPurokPins();
     }
     
     function normalizePurok(purok) {
@@ -332,6 +264,11 @@
         if (visibleMarkers.length > 0) {
             const group = new L.featureGroup(visibleMarkers.map(m => m.marker));
             map.fitBounds(group.getBounds().pad(0.1));
+        } else if (currentPurokFilter !== 'all') {
+            const c = purokCoords[currentPurokFilter];
+            if (c && c.lat != null && c.lng != null) {
+                map.flyTo([parseFloat(c.lat), parseFloat(c.lng)], PUROK_FOCUS_ZOOM);
+            }
         }
 
         // Filter resident cards
@@ -349,8 +286,6 @@
 
         const noResults = document.getElementById('noFilterResults');
         if (noResults) noResults.classList.toggle('hidden', visibleCards > 0);
-
-        updatePurokMarkers();
     }
     
     function filterByProgram(program) {

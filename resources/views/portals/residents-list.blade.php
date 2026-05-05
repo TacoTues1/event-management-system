@@ -180,7 +180,7 @@
                 <div class="col-span-2">
                     <label class="text-sm font-medium text-gray-600">Resident ID File</label>
                     <div class="mt-2">
-                        <img id="modalIdFileImage" src="" alt="Resident ID" class="hidden mt-2 max-h-48 rounded-lg border border-gray-200 object-contain">
+                        <img id="modalIdFileImage" src="" alt="Resident ID" class="hidden mt-2 max-h-48 cursor-zoom-in rounded-lg border border-gray-200 object-contain" title="Click to enlarge">
                         <iframe id="modalIdFileFrame" src="" class="hidden mt-2 h-72 w-full rounded-lg border border-gray-200" title="Resident ID Preview"></iframe>
                         <p id="modalIdFileNone" class="text-gray-500 text-sm">No ID file uploaded.</p>
                     </div>
@@ -192,6 +192,16 @@
                 Close
             </button>
         </div>
+    </div>
+</div>
+
+<!-- IMAGE VIEWER MODAL -->
+<div id="imageViewerModal" class="hidden fixed inset-0 z-[60] bg-black bg-opacity-80 p-4">
+    <button type="button" onclick="closeImageViewerModal()" class="absolute right-6 top-6 rounded-full bg-white/20 px-3 py-1 text-2xl font-semibold text-white hover:bg-white/30">
+        &times;
+    </button>
+    <div class="flex h-full items-center justify-center" onclick="closeImageViewerModal()">
+        <img id="imageViewerModalImage" src="" alt="Resident ID enlarged preview" class="max-h-full max-w-full rounded-lg object-contain" onclick="event.stopPropagation()">
     </div>
 </div>
 
@@ -224,7 +234,15 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
-                    <input type="text" name="contact_number" id="edit_contact_number" class="w-full border rounded px-3 py-2" required>
+                    <input type="tel"
+                        name="contact_number"
+                        id="edit_contact_number"
+                        pattern="^09\d{9}$"
+                        maxlength="11"
+                        inputmode="numeric"
+                        autocomplete="tel"
+                        title="Contact number must be in the format 09XXXXXXXXX."
+                        class="w-full border rounded px-3 py-2" required>
                 </div>
 
                 <div>
@@ -343,6 +361,32 @@ function buildResidentIdFileUrl(residentId) {
     return residentIdFileRouteTemplate.replace('__ID__', residentId);
 }
 
+function openImageViewerModal(imageUrl) {
+    const imageViewerModal = document.getElementById('imageViewerModal');
+    const imageViewerModalImage = document.getElementById('imageViewerModalImage');
+
+    if (!imageUrl || !imageViewerModal || !imageViewerModalImage) {
+        return;
+    }
+
+    imageViewerModalImage.src = imageUrl;
+    imageViewerModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+}
+
+function closeImageViewerModal() {
+    const imageViewerModal = document.getElementById('imageViewerModal');
+    const imageViewerModalImage = document.getElementById('imageViewerModalImage');
+
+    if (!imageViewerModal || !imageViewerModalImage) {
+        return;
+    }
+
+    imageViewerModal.classList.add('hidden');
+    imageViewerModalImage.src = '';
+    document.body.classList.remove('overflow-hidden');
+}
+
 function showResidentDetails(resident) {
     document.getElementById('modalUserId').textContent = resident.user_id || 'N/A';
     document.getElementById('modalName').textContent = resident.name || 'N/A';
@@ -368,9 +412,11 @@ function showResidentDetails(resident) {
     const idFilePath = resident.resident_id_file || '';
     const normalizedIdFilePath = String(idFilePath).toLowerCase();
     const isPdfFile = normalizedIdFilePath.endsWith('.pdf');
+    let activeImageUrl = '';
 
     if (idFilePath) {
         const fileUrl = buildResidentIdFileUrl(resident.user_id);
+        activeImageUrl = fileUrl;
         idFileNone.classList.add('hidden');
         idFileImage.src = '';
         idFileImage.classList.add('hidden');
@@ -380,6 +426,7 @@ function showResidentDetails(resident) {
         idFileFrame.classList.add('hidden');
 
         if (isPdfFile) {
+            activeImageUrl = '';
             idFileFrame.src = fileUrl;
             idFileFrame.classList.remove('hidden');
         } else {
@@ -406,6 +453,14 @@ function showResidentDetails(resident) {
         idFileFrame.src = '';
         idFileFrame.classList.add('hidden');
         idFileNone.classList.remove('hidden');
+        activeImageUrl = '';
+    }
+
+    idFileImage.onclick = null;
+    if (activeImageUrl) {
+        idFileImage.onclick = function() {
+            openImageViewerModal(activeImageUrl);
+        };
     }
 
     document.getElementById('residentModal').classList.remove('hidden');
@@ -413,6 +468,7 @@ function showResidentDetails(resident) {
 
 function closeModal() {
     document.getElementById('residentModal').classList.add('hidden');
+    closeImageViewerModal();
 }
 
 function formatDateForInput(dateValue) {
@@ -619,6 +675,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Normalize contact number digits-only so it matches the browser pattern.
+            const contactInput = editForm.querySelector('input[name="contact_number"]');
+            if (contactInput) {
+                contactInput.value = String(contactInput.value || '').replace(/\D/g, '');
+            }
+
+            // Ensure HTML5 validation runs before compression and final submit.
+            if (!editForm.checkValidity()) {
+                editForm.reportValidity();
+                return;
+            }
+
             const fileReady = await prepareResidentIdFileForSubmit(editForm);
             if (!fileReady) {
                 return;
@@ -628,6 +696,12 @@ document.addEventListener('DOMContentLoaded', () => {
             editForm.submit();
         });
     }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeImageViewerModal();
+        }
+    });
 });
 </script>
 

@@ -4,6 +4,7 @@
 /.vscode
 /.fleet
 /.env
+/.env.example
 /.env.backup
 /.env.production
 /auth.json

@@ -13,11 +13,32 @@ class SignupController extends Controller
 {
     public function store(Request $request)
     {
+        // Normalize inputs for consistent validation and storage.
+        $normalizeInitialCaps = function ($value) {
+            $value = trim((string) $value);
+            if ($value === '') {
+                return '';
+            }
+
+            $firstChar = mb_substr($value, 0, 1, 'UTF-8');
+            $rest = mb_substr($value, 1, null, 'UTF-8');
+
+            return mb_strtoupper($firstChar, 'UTF-8') . $rest;
+        };
+
+        $request->merge([
+            'first_name' => $normalizeInitialCaps($request->input('first_name')),
+            'middle_name' => $request->filled('middle_name') ? $normalizeInitialCaps($request->input('middle_name')) : null,
+            'last_name' => $normalizeInitialCaps($request->input('last_name')),
+            'contact_number' => preg_replace('/\D/', '', (string) $request->input('contact_number')),
+        ]);
+
         $request->validate([
-            'first_name' => 'required|string|max:150',
-            'last_name' => 'required|string|max:150',
+            'first_name' => 'required|string|max:150|regex:/^\p{Lu}/u',
+            'middle_name' => 'nullable|string|max:150|regex:/^\p{Lu}/u',
+            'last_name' => 'required|string|max:150|regex:/^\p{Lu}/u',
             'email' => 'required|email|unique:residents,email|unique:users,email',
-            'contact_number' => 'required|string|max:20',
+            'contact_number' => 'required|string|regex:/^09\d{9}$/',
             'password' => 'required|string|min:6',
             'id_type' => 'required|string|max:100',
             'resident_id_file' => 'required|file|extensions:jpg,jpeg,png,webp,avif,heic,heif,pdf|mimetypes:image/jpeg,image/jpg,image/png,image/webp,image/avif,image/heic,image/heif,image/heic-sequence,image/heif-sequence,application/pdf,application/octet-stream|max:10240',

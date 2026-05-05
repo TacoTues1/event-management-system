@@ -6,7 +6,7 @@
 
 <div class="flex gap-6 p-6">
     <!-- LEFT PANEL - REQUEST INFO -->
-    <div class="w-1/3 bg-white rounded-2xl shadow-lg p-6">
+    <div class="print-hide w-1/3 bg-white rounded-2xl shadow-lg p-6">
         <h3 class="text-xl font-bold text-slate-800 mb-6">Request Information</h3>
         
         <div class="space-y-4">
@@ -65,12 +65,12 @@
     </div>
     
     <!-- RIGHT PANEL - DOCUMENT PREVIEW -->
-    <div class="w-2/3">
-        <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h3 class="text-xl font-bold text-slate-800 mb-6">Document Preview</h3>
+    <div class="print-root w-2/3">
+        <div class="print-card bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="print-hide text-xl font-bold text-slate-800 mb-6">Document Preview</h3>
             
             <!-- CERTIFICATE PREVIEW -->
-            <div class="bond-paper bg-white border-2 border-slate-200 p-12 mx-auto relative" style="width: 600px; min-height: 800px; transform: scale(0.8); transform-origin: top;">
+            <div class="bond-paper bg-white border-2 border-slate-200 p-12 mx-auto relative">
                 
                 <!-- WATERMARK -->
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
@@ -130,47 +130,82 @@
 
 <style>
 @media print {
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    
-    body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-    }
-    
-    body * { 
-        visibility: hidden; 
-    }
-    
-    .bond-paper, .bond-paper * { 
-        visibility: visible; 
-    }
-    
-    .bond-paper {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) !important;
-        width: 8.5in;
-        height: 11in;
-        margin: 0;
-        padding: 1in;
-        border: none;
-        font-size: 16px;
-        line-height: 1.5;
-        background: white;
-    }
-    
-    @page { 
-        size: 8.5in 11in;
-        margin: 0;
-    }
-}
+            @page {
+                size: letter portrait;
+                margin: 0;
+            }
+
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                min-height: 100% !important;
+                background: white !important;
+            }
+
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            *, *::before, *::after {
+                box-sizing: border-box !important;
+            }
+
+            .print-hide {
+                display: none !important;
+            }
+
+            .print-root,
+            .print-card {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                background: transparent !important;
+                overflow: visible !important;
+            }
+
+            .bond-paper {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                isolation: isolate !important;
+                width: 8.5in !important;
+                height: 11in !important;
+                margin: 0 !important;
+                padding: 0.45in 0.7in 0.7in !important;
+                border: none !important;
+                box-shadow: none !important;
+                transform: none !important;
+                background: white !important;
+                display: block !important;
+                overflow: hidden !important;
+            }
+
+            .bond-paper::before,
+            .bond-paper > .absolute.inset-0 {
+                z-index: 0 !important;
+            }
+
+            .bond-paper > :not(.absolute.inset-0) {
+                position: relative !important;
+                z-index: 1 !important;
+            }
+
+            .bond-paper::before {
+                background-size: 50% auto !important;
+                background-position: center !important;
+            }
+
+            .bond-paper img {
+                max-width: 100%;
+                height: auto;
+            }
+        }
 </style>
 
 @endsection

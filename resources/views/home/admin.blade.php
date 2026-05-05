@@ -10,6 +10,87 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
+
+        .bond-paper {
+            width: 8.5in !important;
+            max-width: 100% !important;
+            min-height: 11in !important;
+            margin: 0 auto !important;
+            padding: 1in !important;
+            border: 1px solid #e2e8f0 !important;
+            background: white !important;
+            position: relative !important;
+            transform: scale(0.72) !important;
+            transform-origin: top center !important;
+            box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08) !important;
+        }
+
+        .bond-paper::before {
+            content: '';
+            position: absolute !important;
+            inset: 0 !important;
+            background-image: url("{{ asset('images/barangay_logo.jpg') }}") !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            background-size: 50% auto !important;
+            opacity: 0.08 !important;
+            pointer-events: none !important;
+            z-index: 0 !important;
+        }
+
+        .bond-paper > * {
+            position: relative !important;
+            z-index: 1 !important;
+        }
+
+        .bond-paper .absolute.inset-0,
+        .bond-paper .opacity-10 {
+            display: none !important;
+        }
+
+        @media print {
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                min-height: 100% !important;
+                background: white !important;
+            }
+
+            body * {
+                visibility: hidden !important;
+            }
+
+            .bond-paper, .bond-paper * {
+                visibility: visible !important;
+            }
+
+            .bond-paper {
+                position: static !important;
+                width: 8.5in !important;
+                max-width: 100% !important;
+                min-height: 11in !important;
+                margin: 0 auto !important;
+                padding: 1in !important;
+                border: 2px solid #e2e8f0 !important;
+                box-shadow: none !important;
+                transform: none !important;
+                background: white !important;
+            }
+
+            .bond-paper::before {
+                background-size: 50% auto !important;
+            }
+
+            .bond-paper img {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+
+            @page {
+                margin: 0.5in;
+            }
+        }
     </style>
 </head>
 <body class="flex min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">

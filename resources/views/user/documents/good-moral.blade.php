@@ -9,12 +9,127 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
+
+        .bond-paper {
+            width: 8.5in;
+            max-width: 100%;
+            min-height: 11in;
+            margin: 0 auto;
+            padding: 1in;
+            border: 1px solid #e2e8f0;
+            background: white;
+            position: relative;
+            transform: scale(0.72);
+            transform-origin: top center;
+            box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+        }
+
+        .bond-paper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("{{ asset('images/barangay_logo.jpg') }}");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 50% auto;
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bond-paper > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .bond-paper .absolute.inset-0,
+        .bond-paper .opacity-10 {
+            display: none;
+        }
+
+        @media print {
+            @page {
+                size: letter portrait;
+                margin: 0;
+            }
+
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                min-height: 100% !important;
+                background: white !important;
+            }
+
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            *, *::before, *::after {
+                box-sizing: border-box !important;
+            }
+
+            .print-hide {
+                display: none !important;
+            }
+
+            .print-root,
+            .print-card {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                background: transparent !important;
+                overflow: visible !important;
+            }
+
+            .bond-paper {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                isolation: isolate !important;
+                width: 8.5in !important;
+                height: 11in !important;
+                margin: 0 !important;
+                padding: 0.45in 0.7in 0.7in !important;
+                border: none !important;
+                box-shadow: none !important;
+                transform: none !important;
+                background: white !important;
+                display: block !important;
+                overflow: hidden !important;
+            }
+
+            .bond-paper::before,
+            .bond-paper > .absolute.inset-0 {
+                z-index: 0 !important;
+            }
+
+            .bond-paper > :not(.absolute.inset-0) {
+                position: relative !important;
+                z-index: 1 !important;
+            }
+
+            .bond-paper::before {
+                background-size: 50% auto !important;
+                background-position: center !important;
+            }
+
+            .bond-paper img {
+                max-width: 100%;
+                height: auto;
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
 
     <!-- Header -->
-    <header class="bg-white/80 backdrop-blur-sm border-b border-white/20 shadow-sm p-6 mb-8">
+    <header class="print-hide bg-white/80 backdrop-blur-sm border-b border-white/20 shadow-sm p-6 mb-8">
         <div class="flex items-center justify-between">
             <div class="flex items-center">
                 <a href="{{ route('user.dashboard') }}" class="mr-4 text-gray-500 hover:text-gray-700">
@@ -85,32 +200,53 @@
 
     <div class="flex flex-col md:flex-row gap-6 p-6">
         <!-- LEFT PANEL - FORM -->
-        <div class="w-full md:w-1/3 bg-white rounded-2xl shadow-lg p-6">
+        <div class="print-hide w-full md:w-1/3 bg-white rounded-2xl shadow-lg p-6">
             <h3 class="text-xl font-bold text-slate-800 mb-6">Certificate Details</h3>
             
             <form action="{{ route('user.request.document') }}" method="POST" class="space-y-4">
                 @csrf
                 <input type="hidden" name="document_type" value="Certificate of Good Moral">
+
+                @php
+                    $nameParts = preg_split('/\s+/', trim((string) Auth::user()->name));
+                    $reqFirstName = $nameParts[0] ?? '';
+                    $reqMiddleNameRaw = $nameParts[1] ?? '';
+                    $reqLastName = $nameParts[2] ?? '';
+                    $reqSuffix = $nameParts[3] ?? '';
+
+                    $reqFirstName = mb_strtoupper(mb_substr((string) $reqFirstName, 0, 1, 'UTF-8'), 'UTF-8') . mb_substr((string) $reqFirstName, 1, null, 'UTF-8');
+                    $reqLastName = mb_strtoupper(mb_substr((string) $reqLastName, 0, 1, 'UTF-8'), 'UTF-8') . mb_substr((string) $reqLastName, 1, null, 'UTF-8');
+
+                    $reqMiddleName = trim((string) $reqMiddleNameRaw);
+                    if ($reqMiddleName !== '') {
+                        $reqMiddleName = mb_strtoupper(mb_substr($reqMiddleName, 0, 1, 'UTF-8'), 'UTF-8') . mb_substr($reqMiddleName, 1, null, 'UTF-8');
+                        if (strpos($reqMiddleName, '.') === false && mb_strlen(str_replace('.', '', $reqMiddleName), 'UTF-8') === 1) {
+                            $reqMiddleName .= '.';
+                        }
+                    } else {
+                        $reqMiddleName = '';
+                    }
+                @endphp
                 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">First Name</label>
-                        <input type="text" id="firstName" name="first_name" value="{{ explode(' ', Auth::user()->name)[0] ?? '' }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="First name" required>
+                        <input type="text" id="firstName" name="first_name" value="{{ $reqFirstName }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="First name" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Middle Name</label>
-                        <input type="text" id="middleName" name="middle_name" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="Middle name">
+                        <input type="text" id="middleName" name="middle_name" value="{{ $reqMiddleName }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="Middle name">
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Last Name</label>
-                        <input type="text" id="lastName" name="last_name" value="{{ explode(' ', Auth::user()->name)[1] ?? '' }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="Last name" required>
+                        <input type="text" id="lastName" name="last_name" value="{{ $reqLastName }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="Last name" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Suffix</label>
-                        <input type="text" id="suffix" name="suffix" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="Jr., Sr., III">
+                        <input type="text" id="suffix" name="suffix" value="{{ $reqSuffix }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="Jr., Sr., III">
                     </div>
                 </div>
                 
@@ -139,12 +275,12 @@
         </div>
         
         <!-- RIGHT PANEL - PREVIEW -->
-        <div class="w-full md:w-2/3">
-            <div class="bg-white rounded-2xl shadow-lg p-6">
-                <h3 class="text-xl font-bold text-slate-800 mb-6">Certificate Preview</h3>
+        <div class="print-root w-full md:w-2/3">
+            <div class="print-card bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="print-hide text-xl font-bold text-slate-800 mb-6">Certificate Preview</h3>
                 
                 <!-- CERTIFICATE PREVIEW -->
-                <div class="bond-paper bg-white border-2 border-slate-200 p-6 sm:p-12 mx-auto relative overflow-x-auto" style="max-width: 600px; min-height: 400px;">
+                <div class="bond-paper bg-white border-2 border-slate-200 p-6 sm:p-12 mx-auto relative overflow-x-auto">
                     
                     <!-- WATERMARK -->
                     <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">

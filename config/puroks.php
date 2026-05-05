@@ -11,7 +11,7 @@ return [
     'Mapailubon'      => ['lat' => 9.298278, 'lng' => 123.290694],
     'Matinabangon'    => ['lat' => 9.293667, 'lng' => 123.289472],
     'Fuente'          => ['lat' => 9.297333, 'lng' => 123.287667],
-    'Gumelina'        => ['lat' => 9.299278, 'lng' => 123.289944],
+    'Gemelina'        => ['lat' => 9.299278, 'lng' => 123.289944],
     'Panaghiusa'      => ['lat' => 9.302444, 'lng' => 123.289833],
     'Gumamela'        => ['lat' => 9.305222, 'lng' => 123.291333],
     'Riverside'       => ['lat' => 9.305333, 'lng' => 123.294444],

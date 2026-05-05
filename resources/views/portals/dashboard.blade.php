@@ -6,7 +6,7 @@
 
 <div class="flex gap-6 p-6">
     <!-- LEFT PANEL - FORM -->
-    <div class="w-1/3 bg-white rounded-2xl shadow-lg p-6">
+    <div class="print-hide w-1/3 bg-white rounded-2xl shadow-lg p-6">
         <h3 class="text-xl font-bold text-slate-800 mb-6">Certificate Details</h3>
         
         <form class="space-y-4">
@@ -45,11 +45,9 @@
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-2">Purok</label>
                 <select id="purok" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                    <option value="Purok Mahigugma-on">Purok Mahigugma-on</option>
-                    <option value="Purok Gumamela">Purok Gumamela</option>
-                    <option value="Purok Santol">Purok Santol</option>
-                    <option value="Purok Cebasca">Purok Cebasca</option>
-                    <option value="Purok Fuente">Purok Fuente</option>
+                    @foreach(config('puroks', []) as $name => $coords)
+                        <option value="{{ $name }}">{{ $name }}</option>
+                    @endforeach
                 </select>
             </div>
             
@@ -70,12 +68,12 @@
     </div>
     
     <!-- RIGHT PANEL - PREVIEW -->
-    <div class="w-2/3">
-        <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h3 class="text-xl font-bold text-slate-800 mb-6">Certificate Preview</h3>
+    <div class="print-root w-2/3">
+        <div class="print-card bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="print-hide text-xl font-bold text-slate-800 mb-6">Certificate Preview</h3>
             
             <!-- CERTIFICATE PREVIEW -->
-            <div class="bond-paper bg-white border-2 border-slate-200 p-12 mx-auto relative" style="width: 600px; min-height: 800px; transform: scale(0.8); transform-origin: top;">
+            <div class="bond-paper bg-white border-2 border-slate-200 p-12 mx-auto relative">
                 
                 <!-- WATERMARK -->
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
@@ -190,51 +188,82 @@
 
 <style>
 @media print {
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    
-    body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-    }
-    
-    body * { 
-        visibility: hidden; 
-    }
-    
-    .bond-paper, .bond-paper * { 
-        visibility: visible; 
-    }
-    
-    .bond-paper {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 80px;
-        border: none;
-        font-size: 18px;
-        line-height: 1.6;
-        transform: none !important;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    
-    @page { 
-        size: 8.5in 11in;
-        margin: 0;
-    }
-}
+            @page {
+                size: letter portrait;
+                margin: 0;
+            }
+
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                min-height: 100% !important;
+                background: white !important;
+            }
+
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            *, *::before, *::after {
+                box-sizing: border-box !important;
+            }
+
+            .print-hide {
+                display: none !important;
+            }
+
+            .print-root,
+            .print-card {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                background: transparent !important;
+                overflow: visible !important;
+            }
+
+            .bond-paper {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                isolation: isolate !important;
+                width: 8.5in !important;
+                height: 11in !important;
+                margin: 0 !important;
+                padding: 0.45in 0.7in 0.7in !important;
+                border: none !important;
+                box-shadow: none !important;
+                transform: none !important;
+                background: white !important;
+                display: block !important;
+                overflow: hidden !important;
+            }
+
+            .bond-paper::before,
+            .bond-paper > .absolute.inset-0 {
+                z-index: 0 !important;
+            }
+
+            .bond-paper > :not(.absolute.inset-0) {
+                position: relative !important;
+                z-index: 1 !important;
+            }
+
+            .bond-paper::before {
+                background-size: 50% auto !important;
+                background-position: center !important;
+            }
+
+            .bond-paper img {
+                max-width: 100%;
+                height: auto;
+            }
+        }
 </style>
 
 @endsection

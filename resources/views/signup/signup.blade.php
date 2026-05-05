@@ -68,30 +68,67 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <div>
                 <label for="first_name" class="block text-sm font-medium text-slate-700 mb-2">First Name</label>
-                <input type="text" name="first_name" id="first_name" placeholder="First Name" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
+                <input type="text"
+                    name="first_name"
+                    id="first_name"
+                    value="{{ old('first_name') }}"
+                    placeholder="First Name"
+                    pattern="^[A-Z].*"
+                    maxlength="150"
+                    title="First name must start with a capital letter."
+                    class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200"
+                    required>
             </div>
             <div>
                 <label for="middle_name" class="block text-sm font-medium text-slate-700 mb-2">Middle Name</label>
-                <input type="text" name="middle_name" id="middle_name" placeholder="Middle Name" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200">
+                <input type="text"
+                    name="middle_name"
+                    id="middle_name"
+                    value="{{ old('middle_name') }}"
+                    placeholder="Middle Name"
+                    pattern="^[A-Z].*"
+                    maxlength="150"
+                    title="Middle name must start with a capital letter."
+                    class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200">
             </div>
             <div>
                 <label for="last_name" class="block text-sm font-medium text-slate-700 mb-2">Last Name</label>
-                <input type="text" name="last_name" id="last_name" placeholder="Last Name" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
+                <input type="text"
+                    name="last_name"
+                    id="last_name"
+                    value="{{ old('last_name') }}"
+                    placeholder="Last Name"
+                    pattern="^[A-Z].*"
+                    maxlength="150"
+                    title="Last name must start with a capital letter."
+                    class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200"
+                    required>
             </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <div>
                 <label for="suffix" class="block text-sm font-medium text-slate-700 mb-2">Suffix</label>
-                <input type="text" name="suffix" id="suffix" placeholder="Jr., Sr., III (optional)" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200">
+                <input type="text" name="suffix" id="suffix" value="{{ old('suffix') }}" placeholder="Jr., Sr., III (optional)" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200">
             </div>
             <div>
                 <label for="email" class="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
-                <input type="email" name="email" id="email" placeholder="Email Address" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
+                <input type="email" name="email" id="email" value="{{ old('email') }}" placeholder="Email Address" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
             </div>
             <div>
                 <label for="contact_number" class="block text-sm font-medium text-slate-700 mb-2">Contact Number</label>
-                <input type="tel" name="contact_number" id="contact_number" placeholder="Contact Number" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
+                <input type="tel"
+                    name="contact_number"
+                    id="contact_number"
+                    value="{{ old('contact_number') }}"
+                    placeholder="Contact Number"
+                    pattern="^09\d{9}$"
+                    maxlength="11"
+                    inputmode="numeric"
+                    autocomplete="tel"
+                    title="Contact number must be in the format 09XXXXXXXXX."
+                    class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200"
+                    required>
             </div>
         </div>
 
@@ -109,15 +146,15 @@
                 <label for="id_type" class="block text-sm font-medium text-slate-700 mb-2">ID Type</label>
                 <select name="id_type" id="id_type" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
                     <option value="">Select ID Type</option>
-                    <option value="National ID">National ID</option>
-                    <option value="Barangay ID">Barangay ID</option>
-                    <option value="Senior Citizen ID">Senior Citizen ID</option>
-                    <option value="UMID">UMID</option>
-                    <option value="Voter's ID">Voter's ID</option>
-                    <option value="PhilHealth ID">PhilHealth ID</option>
-                    <option value="Driver's License">Driver's License</option>
-                    <option value="Passport">Passport</option>
-                    <option value="Other Government ID">Other Government ID</option>
+                    <option value="National ID" @selected(old('id_type') === 'National ID')>National ID</option>
+                    <option value="Barangay ID" @selected(old('id_type') === 'Barangay ID')>Barangay ID</option>
+                    <option value="Senior Citizen ID" @selected(old('id_type') === 'Senior Citizen ID')>Senior Citizen ID</option>
+                    <option value="UMID" @selected(old('id_type') === 'UMID')>UMID</option>
+                    <option value="Voter's ID" @selected(old('id_type') === "Voter's ID")>Voter's ID</option>
+                    <option value="PhilHealth ID" @selected(old('id_type') === 'PhilHealth ID')>PhilHealth ID</option>
+                    <option value="Driver's License" @selected(old('id_type') === "Driver's License")>Driver's License</option>
+                    <option value="Passport" @selected(old('id_type') === 'Passport')>Passport</option>
+                    <option value="Other Government ID" @selected(old('id_type') === 'Other Government ID')>Other Government ID</option>
                 </select>
             </div>
             <div>
@@ -130,16 +167,16 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <div>
                 <label for="birthdate" class="block text-sm font-medium text-slate-700 mb-2">Birthdate</label>
-                <input type="date" name="birthdate" id="birthdate" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
+                <input type="date" name="birthdate" id="birthdate" value="{{ old('birthdate') }}" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
             </div>
             <div>
                 <label for="civil_status" class="block text-sm font-medium text-slate-700 mb-2">Civil Status</label>
                 <select name="civil_status" id="civil_status" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
                     <option value="">Select Civil Status</option>
-                    <option value="Single">Single</option>
-                    <option value="Married">Married</option>
-                    <option value="Divorced">Divorced</option>
-                    <option value="Widowed">Widowed</option>
+                    <option value="Single" @selected(old('civil_status') === 'Single')>Single</option>
+                    <option value="Married" @selected(old('civil_status') === 'Married')>Married</option>
+                    <option value="Divorced" @selected(old('civil_status') === 'Divorced')>Divorced</option>
+                    <option value="Widowed" @selected(old('civil_status') === 'Widowed')>Widowed</option>
                 </select>
             </div>
             <div>
@@ -147,7 +184,7 @@
                 <select name="purok" id="purok" onchange="updateMapByPurok(); updateFullAddressPreview();" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
                     <option value="">Select Purok</option>
                     @foreach(config('puroks') as $name => $coords)
-                    <option value="{{ $name }}">{{ $name }}</option>
+                    <option value="{{ $name }}" @selected(old('purok') === $name)>{{ $name }}</option>
                     @endforeach
                 </select>
                 <p class="text-xs text-slate-500 mt-2">Used as the street/location reference within Barangay Bagacay.</p>
@@ -157,7 +194,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <div>
                 <label for="building_no" class="block text-sm font-medium text-slate-700 mb-2">Building No.</label>
-                <input type="text" name="building_no" id="building_no" placeholder="Enter building/house number" oninput="updateFullAddressPreview()" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
+                <input type="text" name="building_no" id="building_no" value="{{ old('building_no') }}" placeholder="Enter building/house number" oninput="updateFullAddressPreview()" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
             </div>
             <div>
                 <label for="barangay" class="block text-sm font-medium text-slate-700 mb-2">Barangay</label>
@@ -172,7 +209,7 @@
         <div class="grid grid-cols-1 gap-4">
             <div>
                 <label for="full_address" class="block text-sm font-medium text-slate-700 mb-2">Full Address Preview</label>
-                <input type="text" name="full_address" id="full_address" readonly class="w-full bg-slate-100 border-0 rounded-2xl px-4 py-3 text-slate-700" required>
+                <input type="text" name="full_address" id="full_address" value="{{ old('full_address') }}" readonly class="w-full bg-slate-100 border-0 rounded-2xl px-4 py-3 text-slate-700" required>
             </div>
         </div>
 
@@ -180,20 +217,16 @@
         <div class="bg-blue-50/50 rounded-2xl p-4 border border-blue-100">
             <div class="flex items-center justify-between mb-3">
                 <label class="block text-sm font-medium text-slate-700">Location (Geo-tagging)</label>
-                <button type="button" onclick="getCurrentLocation()" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-blue-700 transition-colors">
-                    <i data-feather="map-pin" class="w-3 h-3 inline mr-1"></i>
-                    Get Current Location
-                </button>
             </div>
             <div id="map" class="w-full h-48 bg-gray-200 rounded-xl mb-3"></div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs text-slate-600 mb-1">Latitude</label>
-                    <input type="text" name="latitude" id="latitude" readonly class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-600">
+                    <input type="text" name="latitude" id="latitude" value="{{ old('latitude') }}" readonly class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-600">
                 </div>
                 <div>
                     <label class="block text-xs text-slate-600 mb-1">Longitude</label>
-                    <input type="text" name="longitude" id="longitude" readonly class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-600">
+                    <input type="text" name="longitude" id="longitude" value="{{ old('longitude') }}" readonly class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-600">
                 </div>
             </div>
         </div>
@@ -203,10 +236,10 @@
                 <label for="cash_assistance_programs" class="block text-sm font-medium text-slate-700 mb-2">Cash Assistance Programs</label>
                 <select name="cash_assistance_programs" id="cash_assistance_programs" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
                     <option value="">Select Cash Assistance Program</option>
-                    <option value="Pantawid Pamilyang Pilipino Program (4Ps)">Pantawid Pamilyang Pilipino Program (4Ps)</option>
-                    <option value="Assistance to Individuals in Crisis Situations (AICS)">Assistance to Individuals in Crisis Situations (AICS)</option>
-                    <option value="Sustainable Livelihood Program (SLP)">Sustainable Livelihood Program (SLP)</option>
-                    <option value="Targeted Cash Transfers (TCT)">Targeted Cash Transfers (TCT)</option>
+                    <option value="Pantawid Pamilyang Pilipino Program (4Ps)" @selected(old('cash_assistance_programs') === 'Pantawid Pamilyang Pilipino Program (4Ps)')>Pantawid Pamilyang Pilipino Program (4Ps)</option>
+                    <option value="Assistance to Individuals in Crisis Situations (AICS)" @selected(old('cash_assistance_programs') === 'Assistance to Individuals in Crisis Situations (AICS)')>Assistance to Individuals in Crisis Situations (AICS)</option>
+                    <option value="Sustainable Livelihood Program (SLP)" @selected(old('cash_assistance_programs') === 'Sustainable Livelihood Program (SLP)')>Sustainable Livelihood Program (SLP)</option>
+                    <option value="Targeted Cash Transfers (TCT)" @selected(old('cash_assistance_programs') === 'Targeted Cash Transfers (TCT)')>Targeted Cash Transfers (TCT)</option>
                 </select>
             </div>
         </div>
@@ -480,9 +513,41 @@
         }
     }
     
+    function clearFieldsWithValidationErrors() {
+        const errorFields = @json(array_keys($errors->toArray()));
+        if (!Array.isArray(errorFields) || errorFields.length === 0) {
+            return;
+        }
+
+        errorFields.forEach((fieldName) => {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (!field) {
+                return;
+            }
+
+            if (field.type === 'file') {
+                field.value = '';
+                return;
+            }
+
+            if (field.tagName === 'SELECT') {
+                field.selectedIndex = 0;
+                return;
+            }
+
+            if (field.type === 'checkbox' || field.type === 'radio') {
+                field.checked = false;
+                return;
+            }
+
+            field.value = '';
+        });
+    }
+
     // Initialize map when page loads
     document.addEventListener('DOMContentLoaded', function() {
         ensureFixedAddressValues();
+        clearFieldsWithValidationErrors();
         initMap();
         updateFullAddressPreview();
         if (document.getElementById('purok').value) {
@@ -494,6 +559,68 @@
 
         const signupForm = document.querySelector('form[action="{{ route('signup.store') }}"]');
         if (signupForm) {
+            // Auto-format names (capitalize first letter while typing).
+            ['first_name', 'middle_name', 'last_name'].forEach((fieldName) => {
+                const input = signupForm.querySelector(`input[name="${fieldName}"]`);
+                if (!input) return;
+
+                input.addEventListener('input', () => {
+                    const raw = String(input.value || '');
+                    const trimmed = raw.replace(/^\s+/, '');
+                    if (trimmed.length === 0) {
+                        input.value = '';
+                        return;
+                    }
+
+                    input.value = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+                });
+            });
+
+            // Auto-format contact number to: 09XXXXXXXXX (11 digits).
+            const contactInput = signupForm.querySelector('input[name="contact_number"]');
+            if (contactInput) {
+                contactInput.addEventListener('input', () => {
+                    let digits = String(contactInput.value || '').replace(/\D/g, '');
+                    if (digits.length === 0) {
+                        contactInput.value = '';
+                        return;
+                    }
+
+                    if (digits.length < 2) {
+                        // Keep partial input until user types the 2nd digit.
+                        contactInput.value = digits;
+                        return;
+                    }
+
+                    const lastNine = digits.startsWith('09') ? digits.slice(2) : digits.slice(-9);
+                    const rest = lastNine.slice(0, 9);
+                    contactInput.value = '09' + rest;
+                });
+            }
+
+            // Also normalize any pre-filled (old/draft/restored) values on load.
+            ['first_name', 'middle_name', 'last_name'].forEach((fieldName) => {
+                const input = signupForm.querySelector(`input[name="${fieldName}"]`);
+                if (!input) return;
+                const trimmed = String(input.value || '').replace(/^\s+/, '');
+                if (trimmed.length === 0) return;
+                input.value = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+            });
+
+            const contactInputOnLoad = signupForm.querySelector('input[name="contact_number"]');
+            if (contactInputOnLoad) {
+                let digits = String(contactInputOnLoad.value || '').replace(/\D/g, '');
+                if (digits.length === 0) {
+                    contactInputOnLoad.value = '';
+                } else if (digits.length < 2) {
+                    contactInputOnLoad.value = digits;
+                } else {
+                    const lastNine = digits.startsWith('09') ? digits.slice(2) : digits.slice(-9);
+                    const rest = lastNine.slice(0, 9);
+                    contactInputOnLoad.value = '09' + rest;
+                }
+            }
+
             signupForm.addEventListener('submit', async function(event) {
                 event.preventDefault();
 
@@ -503,6 +630,27 @@
 
                 ensureFixedAddressValues();
                 updateFullAddressPreview();
+
+                // Normalize contact number digits-only + capitalize name first letters
+                // so browser validation patterns pass even with user-entered casing/format.
+                const contactInput = signupForm.querySelector('input[name="contact_number"]');
+                if (contactInput) {
+                    contactInput.value = String(contactInput.value || '').replace(/\D/g, '');
+                }
+
+                ['first_name', 'middle_name', 'last_name'].forEach((fieldName) => {
+                    const input = signupForm.querySelector(`input[name="${fieldName}"]`);
+                    if (!input) return;
+                    const raw = String(input.value || '').trim();
+                    if (!raw) return;
+                    input.value = raw.charAt(0).toUpperCase() + raw.slice(1);
+                });
+
+                // Ensure HTML5 validation runs before we proceed with compression.
+                if (!signupForm.checkValidity()) {
+                    signupForm.reportValidity();
+                    return;
+                }
 
                 const fileReady = await prepareResidentIdFileForSubmit();
                 if (!fileReady) {

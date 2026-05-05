@@ -133,10 +133,28 @@ class AdminController extends Controller
     {
         $resident = User::where('role', 'resident')->where('user_id', $id)->firstOrFail();
 
+        // Normalize inputs to consistent formatting.
+        $normalizeInitialCaps = function ($value) {
+            $value = trim((string) $value);
+            if ($value === '') {
+                return '';
+            }
+
+            $firstChar = mb_substr($value, 0, 1, 'UTF-8');
+            $rest = mb_substr($value, 1, null, 'UTF-8');
+
+            return mb_strtoupper($firstChar, 'UTF-8') . $rest;
+        };
+
+        $request->merge([
+            'name' => $normalizeInitialCaps($request->input('name')),
+            'contact_number' => preg_replace('/\D/', '', (string) $request->input('contact_number')),
+        ]);
+
         $validated = $request->validate([
-            'name' => 'required|string|max:150',
+            'name' => 'required|string|max:150|regex:/^\p{Lu}/u',
             'email' => 'required|email|unique:users,email,' . $resident->user_id . ',user_id',
-            'contact_number' => 'required|string|max:20',
+            'contact_number' => 'required|string|regex:/^09\d{9}$/',
             'password' => 'nullable|string|min:6',
             'age' => 'nullable|integer|min:0|max:150',
             'civil_status' => 'required|string|max:20',
@@ -523,11 +541,38 @@ class AdminController extends Controller
 
     public function storeResident(Request $request)
     {
+        // Normalize to consistent formatting before validation/storage.
+        $normalizeInitialCaps = function ($value) {
+            $value = trim((string) $value);
+            if ($value === '') {
+                return '';
+            }
+
+            $firstChar = mb_substr($value, 0, 1, 'UTF-8');
+            $rest = mb_substr($value, 1, null, 'UTF-8');
+
+            return mb_strtoupper($firstChar, 'UTF-8') . $rest;
+        };
+
+        $firstName = $normalizeInitialCaps($request->input('first_name'));
+        $middleNameRaw = trim((string) $request->input('middle_name'));
+        $middleName = $middleNameRaw === '' ? null : $normalizeInitialCaps($middleNameRaw);
+        $lastName = $normalizeInitialCaps($request->input('last_name'));
+        $contactNumber = preg_replace('/\D/', '', (string) $request->input('contact_number'));
+
+        $request->merge([
+            'first_name' => $firstName,
+            'middle_name' => $middleName,
+            'last_name' => $lastName,
+            'contact_number' => $contactNumber,
+        ]);
+
         $request->validate([
-            'first_name' => 'required|string|max:150',
-            'last_name' => 'required|string|max:150',
+            'first_name' => 'required|string|max:150|regex:/^\p{Lu}/u',
+            'middle_name' => 'nullable|string|max:150|regex:/^\p{Lu}/u',
+            'last_name' => 'required|string|max:150|regex:/^\p{Lu}/u',
             'email' => 'required|email|unique:users,email',
-            'contact_number' => 'required|string|max:20',
+            'contact_number' => 'required|string|regex:/^09\d{9}$/',
             'password' => 'required|string|min:6',
             'id_type' => 'required|string|max:100',
             'resident_id_file' => 'required|file|extensions:jpg,jpeg,png,webp,avif,heic,heif,pdf|mimetypes:image/jpeg,image/jpg,image/png,image/webp,image/avif,image/heic,image/heif,image/heic-sequence,image/heif-sequence,application/pdf,application/octet-stream|max:10240',
@@ -543,7 +588,19 @@ class AdminController extends Controller
 
         try {
             $age = Carbon::parse($request->birthdate)->age;
-            $fullName = trim($request->first_name . ' ' . ($request->middle_name ?? '') . ' ' . $request->last_name . ' ' . ($request->suffix ?? ''));
+            $fullNameParts = [$request->first_name];
+
+            if (!empty($request->middle_name)) {
+                $fullNameParts[] = $request->middle_name;
+            }
+
+            $fullNameParts[] = $request->last_name;
+
+            if (!empty($request->suffix)) {
+                $fullNameParts[] = $request->suffix;
+            }
+
+            $fullName = trim(implode(' ', $fullNameParts));
             $fullAddress = trim($request->building_no . ', ' . $request->purok . ', Bagacay, Dumaguete City');
             $residentIdFilePath = $request->file('resident_id_file')->store('resident-ids', 'public');
 
