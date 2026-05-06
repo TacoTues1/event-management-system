@@ -194,7 +194,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <div>
                 <label for="building_no" class="block text-sm font-medium text-slate-700 mb-2">Building No.</label>
-                <input type="text" name="building_no" id="building_no" value="{{ old('building_no') }}" placeholder="Enter building/house number" oninput="updateFullAddressPreview()" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
+                <input type="text" name="building_no" id="building_no" value="{{ old('building_no') }}" placeholder="Enter building/house number (optional)" oninput="updateFullAddressPreview()" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200">
             </div>
             <div>
                 <label for="barangay" class="block text-sm font-medium text-slate-700 mb-2">Barangay</label>
@@ -237,9 +237,9 @@
                 <select name="cash_assistance_programs" id="cash_assistance_programs" class="w-full bg-slate-50/50 border-0 rounded-2xl px-4 py-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200" required>
                     <option value="">Select Cash Assistance Program</option>
                     <option value="Pantawid Pamilyang Pilipino Program (4Ps)" @selected(old('cash_assistance_programs') === 'Pantawid Pamilyang Pilipino Program (4Ps)')>Pantawid Pamilyang Pilipino Program (4Ps)</option>
-                    <option value="Assistance to Individuals in Crisis Situations (AICS)" @selected(old('cash_assistance_programs') === 'Assistance to Individuals in Crisis Situations (AICS)')>Assistance to Individuals in Crisis Situations (AICS)</option>
+                    <option value="Walang Gutom Program (WGP)" @selected(old('cash_assistance_programs') === 'Walang Gutom Program (WGP)')>Walang Gutom Program (WGP)</option>
                     <option value="Sustainable Livelihood Program (SLP)" @selected(old('cash_assistance_programs') === 'Sustainable Livelihood Program (SLP)')>Sustainable Livelihood Program (SLP)</option>
-                    <option value="Targeted Cash Transfers (TCT)" @selected(old('cash_assistance_programs') === 'Targeted Cash Transfers (TCT)')>Targeted Cash Transfers (TCT)</option>
+                    <option value="Social Pension Program (SPP)" @selected(old('cash_assistance_programs') === 'Social Pension Program (SPP)')>Social Pension Program (SPP)</option>
                 </select>
             </div>
         </div>
@@ -284,9 +284,9 @@
     // Cash assistance program colors
     const programColors = {
         'Pantawid Pamilyang Pilipino Program (4Ps)': '#ef4444',
-        'Targeted Cash Transfers (TCT)': '#3b82f6',
+        'Social Pension Program (SPP)': '#3b82f6',
         'Sustainable Livelihood Program (SLP)': '#f97316',
-        'Assistance to Individuals in Crisis Situations (AICS)': '#eab308'
+        'Walang Gutom Program (WGP)': '#eab308'
     };
     
     // Create custom colored icon

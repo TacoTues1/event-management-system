@@ -45,7 +45,7 @@ class SignupController extends Controller
             'birthdate' => 'required|date|before:today',
             'civil_status' => 'required|string|max:20',
             'purok' => 'required|string|max:100',
-            'building_no' => 'required|string|max:100',
+            'building_no' => 'nullable|string|max:100',
             'full_address' => 'required|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
@@ -61,7 +61,12 @@ class SignupController extends Controller
         try {
             $age = \Carbon\Carbon::parse($request->birthdate)->age;
             $fullName = trim($request->first_name . ' ' . ($request->middle_name ?? '') . ' ' . $request->last_name . ' ' . ($request->suffix ?? ''));
-            $fullAddress = trim($request->building_no . ', ' . $request->purok . ', Bagacay, Dumaguete City');
+            $fullAddress = collect([
+                $request->building_no,
+                $request->purok,
+                'Bagacay',
+                'Dumaguete City',
+            ])->filter(fn ($part) => $part !== null && trim((string) $part) !== '')->implode(', ');
             $residentIdFilePath = $request->file('resident_id_file')->store('resident-ids', 'public');
 
             $user = User::create([
@@ -75,7 +80,7 @@ class SignupController extends Controller
                 'id_type' => $request->id_type,
                 'resident_id_file' => $residentIdFilePath,
                 'purok' => $request->purok,
-                'building_no' => $request->building_no,
+                'building_no' => $request->filled('building_no') ? $request->building_no : null,
                 'barangay' => 'Bagacay',
                 'city' => 'Dumaguete City',
                 'full_address' => $fullAddress,

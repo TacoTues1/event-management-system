@@ -37,7 +37,9 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                {{ $request->status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                @if($request->status === 'approved') bg-green-100 text-green-800
+                                @elseif($request->status === 'rejected') bg-red-100 text-red-800
+                                @else bg-yellow-100 text-yellow-800 @endif">
                                 {{ ucfirst($request->status) }}
                             </span>
                         </td>
@@ -45,19 +47,43 @@
                             {{ $request->created_at->format('M d, Y') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ route('document-request.view', $request->request_id) }}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                            <div class="inline-flex items-center gap-3">
+                            <a href="{{ route('document-request.view', $request->request_id) }}" class="inline-flex items-center leading-5 text-sm font-medium text-blue-600 hover:text-blue-900">View</a>
                             @if($request->status === 'pending')
                             <form action="{{ route('document-request.approve', $request->request_id) }}" method="POST" class="inline">
                                 @csrf
-                                <button type="submit" class="text-green-600 hover:text-green-900 mr-3">Approve</button>
+                                <button type="submit" class="inline-flex items-center leading-5 text-sm font-medium text-green-600 hover:text-green-900">Approve</button>
                             </form>
-                            <form action="{{ route('document-request.reject', $request->request_id) }}" method="POST" class="inline">
+                            <form action="{{ route('document-request.reject', $request->request_id) }}" method="POST" class="inline-flex items-center gap-2 relative">
                                 @csrf
-                                <button type="submit" class="text-red-600 hover:text-red-900">Reject</button>
+                                <button type="submit" class="inline-flex items-center leading-5 text-sm font-medium text-red-600 hover:text-red-900">Reject</button>
+                                <div class="relative">
+                                    <select
+                                        name="rejection_reason_option"
+                                        class="w-44 border border-gray-300 rounded px-2 py-1 text-sm"
+                                        onchange="toggleCustomRejectReason(this)"
+                                        required
+                                    >
+                                        <option value="" disabled selected>Select option</option>
+                                        <option value="Duplicate Request">Duplicate Request</option>
+                                        <option value="Pending/Unsettled Issues">Pending/Unsettled Issues</option>
+                                        <option value="Incorrect Information">Incorrect Information</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                    <div class="hidden custom-reason-wrapper absolute left-0 top-full mt-2 z-20">
+                                        <input
+                                            type="text"
+                                            name="rejection_reason_custom"
+                                            class="custom-reason-input w-44 border border-gray-300 rounded px-2 py-1 text-sm"
+                                            placeholder="Provide Reason"
+                                        >
+                                    </div>
+                                </div>
                             </form>
                             @else
                             <span class="text-gray-400">{{ ucfirst($request->status) }}</span>
                             @endif
+                            </div>
                         </td>
                     </tr>
                     @empty
@@ -94,6 +120,17 @@
 </div>
 
 <script>
+function toggleCustomRejectReason(selectElement) {
+    const customWrapper = selectElement.form.querySelector('.custom-reason-wrapper');
+    const customInput = selectElement.form.querySelector('.custom-reason-input');
+    if (!customInput || !customWrapper) return;
+
+    const shouldShow = selectElement.value === 'Others';
+    customWrapper.classList.toggle('hidden', !shouldShow);
+    customInput.required = shouldShow;
+    if (!shouldShow) customInput.value = '';
+}
+
 function showRequestDetails(requestId) {
     fetch(`/document-request/${requestId}`)
         .then(response => response.json())
@@ -103,6 +140,7 @@ function showRequestDetails(requestId) {
                 <div><strong>Document Type:</strong> ${data.document_type}</div>
                 <div><strong>Purpose:</strong> ${data.purpose || 'Not specified'}</div>
                 <div><strong>Status:</strong> ${data.status}</div>
+                ${data.status === 'rejected' ? `<div><strong>Rejection Reason:</strong> ${data.rejection_reason ?? 'No reason provided.'}</div>` : ''}
                 <div><strong>Requested:</strong> ${data.requested_at}</div>
             `;
             document.getElementById('requestModal').classList.remove('hidden');

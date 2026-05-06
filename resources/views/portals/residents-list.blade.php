@@ -266,6 +266,8 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">ID Type</label>
                     <select name="id_type" id="edit_id_type" class="w-full border rounded px-3 py-2" required>
+                        <option value="National ID">National ID</option>
+                        <option value="Postal ID">Postal ID</option>
                         <option value="Barangay ID">Barangay ID</option>
                         <option value="Senior Citizen ID">Senior Citizen ID</option>
                         <option value="UMID">UMID</option>
@@ -291,7 +293,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Building No.</label>
-                    <input type="text" name="building_no" id="edit_building_no" class="w-full border rounded px-3 py-2" oninput="updateEditFullAddress()" required>
+                    <input type="text" name="building_no" id="edit_building_no" class="w-full border rounded px-3 py-2" oninput="updateEditFullAddress()">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Barangay</label>
@@ -319,9 +321,9 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Cash Assistance Program</label>
                     <select name="cash_assistance_programs" id="edit_cash_assistance_programs" class="w-full border rounded px-3 py-2" required>
                         <option value="Pantawid Pamilyang Pilipino Program (4Ps)">Pantawid Pamilyang Pilipino Program (4Ps)</option>
-                        <option value="Assistance to Individuals in Crisis Situations (AICS)">Assistance to Individuals in Crisis Situations (AICS)</option>
+                        <option value="Walang Gutom Program (WGP)">Walang Gutom Program (WGP)</option>
                         <option value="Sustainable Livelihood Program (SLP)">Sustainable Livelihood Program (SLP)</option>
-                        <option value="Targeted Cash Transfers (TCT)">Targeted Cash Transfers (TCT)</option>
+                        <option value="Social Pension Program (SPP)">Social Pension Program (SPP)</option>
                         <option value="N/A">N/A</option>
                     </select>
                 </div>

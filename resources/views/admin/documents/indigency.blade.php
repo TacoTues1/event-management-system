@@ -47,11 +47,24 @@
                         Approve Request
                     </button>
                 </form>
-                <form action="{{ route('document-request.reject', $request->request_id) }}" method="POST" class="flex-1">
+                <form action="{{ route('document-request.reject', $request->request_id) }}" method="POST" class="flex-1 space-y-2">
                     @csrf
-                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-medium transition-all duration-200">
-                        Reject Request
-                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-medium transition-all duration-200">
+                            Reject Request
+                        </button>
+                        <select name="rejection_reason_option" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" onchange="toggleCustomRejectReason(this)" required>
+                            <option value="" disabled selected>Select option</option>
+                            <option value="Duplicate Request">Duplicate Request</option>
+                            <option value="Pending/Unsettled Issues">Pending/Unsettled Issues</option>
+                            <option value="Incorrect Information">Incorrect Information</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                    <div class="hidden custom-reason-wrapper grid grid-cols-2 gap-2">
+                        <div></div>
+                        <input type="text" name="rejection_reason_custom" class="custom-reason-input w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="Provide Reason">
+                    </div>
                 </form>
             </div>
             @elseif($request->status === 'approved')
@@ -134,6 +147,19 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleCustomRejectReason(selectElement) {
+    const customWrapper = selectElement.form.querySelector('.custom-reason-wrapper');
+    const customInput = selectElement.form.querySelector('.custom-reason-input');
+    if (!customInput || !customWrapper) return;
+
+    const shouldShow = selectElement.value === 'Others';
+    customWrapper.classList.toggle('hidden', !shouldShow);
+    customInput.required = shouldShow;
+    if (!shouldShow) customInput.value = '';
+}
+</script>
 
 <style>
 @media print {

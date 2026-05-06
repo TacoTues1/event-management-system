@@ -316,6 +316,12 @@
                             <p class="text-sm font-medium text-gray-600 mb-1">Last Updated</p>
                             <p class="font-semibold text-gray-900">${data.updated_at}</p>
                         </div>
+                        ${data.status === 'rejected' ? `
+                        <div class="bg-red-50 border border-red-200 rounded-2xl p-4">
+                            <p class="text-sm font-medium text-red-700 mb-1">Reason for Rejection</p>
+                            <p class="font-semibold text-red-900">${data.rejection_reason ?? 'No reason provided.'}</p>
+                        </div>
+                        ` : ''}
                     `;
                     
                     document.getElementById('requestModal').classList.remove('hidden');

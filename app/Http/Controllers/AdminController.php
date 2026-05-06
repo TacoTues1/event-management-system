@@ -161,7 +161,7 @@ class AdminController extends Controller
             'id_type' => 'required|string|max:100',
             'resident_id_file' => 'nullable|file|extensions:jpg,jpeg,png,webp,avif,heic,heif,pdf|mimetypes:image/jpeg,image/jpg,image/png,image/webp,image/avif,image/heic,image/heif,image/heic-sequence,image/heif-sequence,application/pdf,application/octet-stream|max:10240',
             'purok' => 'required|string|max:100',
-            'building_no' => 'required|string|max:100',
+            'building_no' => 'nullable|string|max:100',
             'barangay' => 'required|string|max:100',
             'city' => 'required|string|max:100',
             'latitude' => 'nullable|numeric|between:-90,90',
@@ -181,10 +181,15 @@ class AdminController extends Controller
                     'civil_status' => $validated['civil_status'],
                     'id_type' => $validated['id_type'],
                     'purok' => $validated['purok'],
-                    'building_no' => $validated['building_no'],
+                    'building_no' => $validated['building_no'] ?? null,
                     'barangay' => $validated['barangay'],
                     'city' => $validated['city'],
-                    'full_address' => trim($validated['building_no'] . ', ' . $validated['purok'] . ', ' . $validated['barangay'] . ', ' . $validated['city']),
+                    'full_address' => collect([
+                        $validated['building_no'] ?? null,
+                        $validated['purok'],
+                        $validated['barangay'],
+                        $validated['city'],
+                    ])->filter(fn ($part) => $part !== null && trim((string) $part) !== '')->implode(', '),
                     'latitude' => $validated['latitude'] ?? null,
                     'longitude' => $validated['longitude'] ?? null,
                     'is_indigent' => $validated['cash_assistance_programs'],
@@ -390,6 +395,7 @@ class AdminController extends Controller
             'document_type' => $documentType,
             'purpose' => $actualPurpose,
             'status' => $request->status,
+            'rejection_reason' => $request->rejection_reason,
             'requested_at' => $request->created_at->format('M d, Y h:i A')
         ]);
     }
@@ -399,7 +405,10 @@ class AdminController extends Controller
         try {
             $request = DocumentRequest::findOrFail($id);
             DB::transaction(function () use ($request, $id) {
-                $request->update(['status' => 'approved']);
+                $request->update([
+                    'status' => 'approved',
+                    'rejection_reason' => null,
+                ]);
                 $this->logActivity('APPROVE_REQUEST', "Approved document request ID: {$id} for user: {$request->resident->name}");
             });
             return redirect()->back()->with('success', 'Document request approved successfully!');
@@ -409,12 +418,41 @@ class AdminController extends Controller
         }
     }
 
-    public function rejectRequest($id)
+    public function rejectRequest(Request $httpRequest, $id)
     {
+        $reasonOptions = [
+            'Duplicate Request',
+            'Pending/Unsettled Issues',
+            'Incorrect Information',
+            'Others',
+        ];
+
         try {
             $request = DocumentRequest::findOrFail($id);
-            DB::transaction(function () use ($request, $id) {
-                $request->update(['status' => 'rejected']);
+            $validated = $httpRequest->validate([
+                'rejection_reason_option' => 'required|string|in:' . implode(',', $reasonOptions),
+                'rejection_reason_custom' => 'nullable|string|max:500|required_if:rejection_reason_option,Others',
+            ], [
+                'rejection_reason_option.required' => 'Please select a rejection reason.',
+                'rejection_reason_option.in' => 'Please select a valid rejection reason.',
+                'rejection_reason_custom.required_if' => 'Please provide a custom rejection reason when selecting Others.',
+            ]);
+
+            $rejectionReason = $validated['rejection_reason_option'] === 'Others'
+                ? trim((string) ($validated['rejection_reason_custom'] ?? ''))
+                : $validated['rejection_reason_option'];
+
+            if ($validated['rejection_reason_option'] === 'Others' && $rejectionReason === '') {
+                return redirect()->back()->withErrors([
+                    'rejection_reason_custom' => 'Please provide a custom rejection reason when selecting Others.'
+                ])->withInput();
+            }
+
+            DB::transaction(function () use ($request, $id, $rejectionReason) {
+                $request->update([
+                    'status' => 'rejected',
+                    'rejection_reason' => $rejectionReason,
+                ]);
                 $this->logActivity('REJECT_REQUEST', "Rejected document request ID: {$id} for user: {$request->resident->name}");
             });
             return redirect()->back()->with('success', 'Document request rejected.');
@@ -579,7 +617,7 @@ class AdminController extends Controller
             'birthdate' => 'required|date|before:today',
             'civil_status' => 'required|string|max:20',
             'purok' => 'required|string|max:100',
-            'building_no' => 'required|string|max:100',
+            'building_no' => 'nullable|string|max:100',
             'full_address' => 'required|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
@@ -601,7 +639,12 @@ class AdminController extends Controller
             }
 
             $fullName = trim(implode(' ', $fullNameParts));
-            $fullAddress = trim($request->building_no . ', ' . $request->purok . ', Bagacay, Dumaguete City');
+            $fullAddress = collect([
+                $request->building_no,
+                $request->purok,
+                'Bagacay',
+                'Dumaguete City',
+            ])->filter(fn ($part) => $part !== null && trim((string) $part) !== '')->implode(', ');
             $residentIdFilePath = $request->file('resident_id_file')->store('resident-ids', 'public');
 
             DB::transaction(function () use ($request, $age, $fullName, $fullAddress, $residentIdFilePath) {
@@ -616,7 +659,7 @@ class AdminController extends Controller
                     'id_type' => $request->id_type,
                     'resident_id_file' => $residentIdFilePath,
                     'purok' => $request->purok,
-                    'building_no' => $request->building_no,
+                    'building_no' => $request->filled('building_no') ? $request->building_no : null,
                     'barangay' => 'Bagacay',
                     'city' => 'Dumaguete City',
                     'full_address' => $fullAddress,

@@ -84,8 +84,8 @@
                     <select name="event_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">Select Type</option>
                         <option value="Pantawid Pamilyang Pilipino Program (4Ps)">Pantawid Pamilyang Pilipino Program (4Ps)</option>
-                        <option value="Assistance to Individuals in Crisis Situations (AICS)">Assistance to Individuals in Crisis Situations (AICS)</option>
-                        <option value="Targeted Cash Transfers (TCT)">Targeted Cash Transfers (TCT)</option>
+                        <option value="Walang Gutom Program (WGP)">Walang Gutom Program (WGP)</option>
+                        <option value="Social Pension Program (SPP)">Social Pension Program (SPP)</option>
                         <option value="Sustainable Livelihood Program (SLP)">Sustainable Livelihood Program (SLP)</option>
                     </select>
                 </div>

@@ -22,27 +22,27 @@
                         All Programs
                     </button>
                     <button onclick="filterByProgram('Pantawid Pamilyang Pilipino Program (4Ps)')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-red-500 hover:text-white" data-program="Pantawid Pamilyang Pilipino Program (4Ps)">
-                        <span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>Pantawid (4Ps)
+                        <span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>Pantawid Pamilyang Pilipino Program (4Ps)
                         @if(($programCounts['Pantawid Pamilyang Pilipino Program (4Ps)'] ?? 0) > 0)
                         <span class="ml-1 bg-red-100 text-red-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Pantawid Pamilyang Pilipino Program (4Ps)'] }}</span>
                         @endif
                     </button>
-                    <button onclick="filterByProgram('Targeted Cash Transfers (TCT)')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-blue-500 hover:text-white" data-program="Targeted Cash Transfers (TCT)">
-                        <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span>TCT
-                        @if(($programCounts['Targeted Cash Transfers (TCT)'] ?? 0) > 0)
-                        <span class="ml-1 bg-blue-100 text-blue-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Targeted Cash Transfers (TCT)'] }}</span>
+                    <button onclick="filterByProgram('Social Pension Program (SPP)')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-blue-500 hover:text-white" data-program="Social Pension Program (SPP)">
+                        <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span>Social Pension Program (SPP)
+                        @if(($programCounts['Social Pension Program (SPP)'] ?? 0) > 0)
+                        <span class="ml-1 bg-blue-100 text-blue-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Social Pension Program (SPP)'] }}</span>
                         @endif
                     </button>
                     <button onclick="filterByProgram('Sustainable Livelihood Program (SLP)')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-orange-500 hover:text-white" data-program="Sustainable Livelihood Program (SLP)">
-                        <span class="inline-block w-3 h-3 rounded-full bg-orange-500 mr-2"></span>SLP
+                        <span class="inline-block w-3 h-3 rounded-full bg-orange-500 mr-2"></span>Sustainable Livelihood Program (SLP)
                         @if(($programCounts['Sustainable Livelihood Program (SLP)'] ?? 0) > 0)
                         <span class="ml-1 bg-orange-100 text-orange-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Sustainable Livelihood Program (SLP)'] }}</span>
                         @endif
                     </button>
-                    <button onclick="filterByProgram('Assistance to Individuals in Crisis Situations (AICS)')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-yellow-500 hover:text-white" data-program="Assistance to Individuals in Crisis Situations (AICS)">
-                        <span class="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>AICS
-                        @if(($programCounts['Assistance to Individuals in Crisis Situations (AICS)'] ?? 0) > 0)
-                        <span class="ml-1 bg-yellow-100 text-yellow-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Assistance to Individuals in Crisis Situations (AICS)'] }}</span>
+                    <button onclick="filterByProgram('Walang Gutom Program (WGP)')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-yellow-500 hover:text-white" data-program="Walang Gutom Program (WGP)">
+                        <span class="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>Walang Gutom Program (WGP)
+                        @if(($programCounts['Walang Gutom Program (WGP)'] ?? 0) > 0)
+                        <span class="ml-1 bg-yellow-100 text-yellow-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Walang Gutom Program (WGP)'] }}</span>
                         @endif
                     </button>
                 </div>
@@ -163,10 +163,10 @@
     const allResidentsForModal = JSON.parse('{!! json_encode($allResidentsForModal) !!}');
 
     const programLabels = {
-        'Pantawid Pamilyang Pilipino Program (4Ps)': 'Pantawid',
-        'Targeted Cash Transfers (TCT)': 'TCT',
-        'Sustainable Livelihood Program (SLP)': 'SLP',
-        'Assistance to Individuals in Crisis Situations (AICS)': 'AICS'
+        'Pantawid Pamilyang Pilipino Program (4Ps)': 'Pantawid Pamilyang Pilipino Program (4Ps)',
+        'Social Pension Program (SPP)': 'Social Pension Program (SPP)',
+        'Sustainable Livelihood Program (SLP)': 'Sustainable Livelihood Program (SLP)',
+        'Walang Gutom Program (WGP)': 'Walang Gutom Program (WGP)'
     };
 
     let map, markers = [];
@@ -177,9 +177,9 @@
 
     const programColors = {
         'Pantawid Pamilyang Pilipino Program (4Ps)': '#ef4444',
-        'Targeted Cash Transfers (TCT)': '#3b82f6',
+        'Social Pension Program (SPP)': '#3b82f6',
         'Sustainable Livelihood Program (SLP)': '#f97316',
-        'Assistance to Individuals in Crisis Situations (AICS)': '#eab308'
+        'Walang Gutom Program (WGP)': '#eab308'
     };
 
     function createColoredIcon(color) {
@@ -393,9 +393,9 @@
         let badges = '';
         const badgeColors = {
             'Pantawid Pamilyang Pilipino Program (4Ps)': 'bg-red-100 text-red-700',
-            'Targeted Cash Transfers (TCT)': 'bg-blue-100 text-blue-700',
+            'Social Pension Program (SPP)': 'bg-blue-100 text-blue-700',
             'Sustainable Livelihood Program (SLP)': 'bg-orange-100 text-orange-700',
-            'Assistance to Individuals in Crisis Situations (AICS)': 'bg-yellow-100 text-yellow-700'
+            'Walang Gutom Program (WGP)': 'bg-yellow-100 text-yellow-700'
         };
 
         if (currentProgramFilter !== 'all') {

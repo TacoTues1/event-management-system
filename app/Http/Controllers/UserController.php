@@ -45,14 +45,16 @@ class UserController extends Controller
             $request = DocumentRequest::where('request_id', $id)
                 ->where('resident_id', Auth::user()->user_id)
                 ->firstOrFail();
+            $displayTimezone = 'Asia/Manila';
 
             return response()->json([
                 'id' => $request->request_id,
                 'document_type' => explode(' - ', $request->purpose)[0] ?? 'Document Request',
                 'purpose' => explode(' - ', $request->purpose, 2)[1] ?? $request->purpose,
                 'status' => $request->status,
-                'request_date' => $request->created_at->format('M d, Y'),
-                'updated_at' => $request->updated_at->format('M d, Y h:i A'),
+                'rejection_reason' => $request->rejection_reason,
+                'request_date' => $request->created_at->copy()->timezone($displayTimezone)->format('M d, Y'),
+                'updated_at' => $request->updated_at->copy()->timezone($displayTimezone)->format('M d, Y h:i:s A'),
             ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['error' => 'Request not found or access denied.'], 404);

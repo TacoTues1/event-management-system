@@ -17,6 +17,7 @@ class DocumentRequest extends Model
         'purpose',
         'request_date',
         'status',
+        'rejection_reason',
     ];
 
     protected $casts = [

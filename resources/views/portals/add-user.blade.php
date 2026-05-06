@@ -161,7 +161,7 @@
         <div>
             <label class="block text-sm font-medium text-gray-700">Building No.</label>
             <input type="text" name="building_no" id="building_no" value="{{ old('building_no') }}" oninput="updateFullAddressPreview()"
-                class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" required>
+                class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
         </div>
 
         <!-- Barangay (Fixed) -->
@@ -210,9 +210,9 @@
                 class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" required>
                 <option value="">Select Cash Assistance Program</option>
                 <option value="Pantawid Pamilyang Pilipino Program (4Ps)" {{ old('cash_assistance_programs') == 'Pantawid Pamilyang Pilipino Program (4Ps)' ? 'selected' : '' }}>Pantawid Pamilyang Pilipino Program (4Ps)</option>
-                <option value="Assistance to Individuals in Crisis Situations (AICS)" {{ old('cash_assistance_programs') == 'Assistance to Individuals in Crisis Situations (AICS)' ? 'selected' : '' }}>Assistance to Individuals in Crisis Situations (AICS)</option>
+                <option value="Walang Gutom Program (WGP)" {{ old('cash_assistance_programs') == 'Walang Gutom Program (WGP)' ? 'selected' : '' }}>Walang Gutom Program (WGP)</option>
                 <option value="Sustainable Livelihood Program (SLP)" {{ old('cash_assistance_programs') == 'Sustainable Livelihood Program (SLP)' ? 'selected' : '' }}>Sustainable Livelihood Program (SLP)</option>
-                <option value="Targeted Cash Transfers (TCT)" {{ old('cash_assistance_programs') == 'Targeted Cash Transfers (TCT)' ? 'selected' : '' }}>Targeted Cash Transfers (TCT)</option>
+                <option value="Social Pension Program (SPP)" {{ old('cash_assistance_programs') == 'Social Pension Program (SPP)' ? 'selected' : '' }}>Social Pension Program (SPP)</option>
             </select>
         </div>
 
@@ -258,7 +258,7 @@
                 return;
             }
 
-            if (field.type === 'password' || field.type === 'file') {
+            if (field.type === 'password' || field.type === 'file' || field.name === '_token') {
                 return;
             }
 
@@ -294,7 +294,7 @@
                 return;
             }
 
-            if (field.type === 'password' || field.type === 'file') {
+            if (field.type === 'password' || field.type === 'file' || field.name === '_token') {
                 return;
             }
 

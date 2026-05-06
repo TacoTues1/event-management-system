@@ -3,6 +3,22 @@
 @section('title', 'Admin Dashboard')
 
 @section('content')
+@php
+    use Illuminate\Support\Str;
+    /** @var int $totalUsers */
+    /** @var int $monthlyUsers */
+    /** @var int $totalRequests */
+    /** @var int $monthlyRequests */
+    /** @var int $pendingRequests */
+    /** @var int $totalEvents */
+    /** @var int $approvedRequests */
+    /** @var int $rejectedRequests */
+    /** @var \Illuminate\Support\Collection $documentTypes */
+    /** @var \Illuminate\Support\Collection $purokDistribution */
+    /** @var \Illuminate\Support\Collection $residentsWithAssistance */
+    /** @var \Illuminate\Support\Collection $recentRequests */
+    /** @var array $assistanceByPurok */
+@endphp
 <div class="p-6 space-y-6">
     <!-- Welcome Section -->
     <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-3xl p-8 text-white shadow-2xl">
@@ -95,6 +111,12 @@
         <!-- Request Status Chart -->
         <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
             <h3 class="text-xl font-bold text-gray-900 mb-6">Request Status Overview</h3>
+            @php
+                $totalRequestsSafe = max((int) ($totalRequests ?? 0), 0);
+                $approvedPct = $totalRequestsSafe > 0 ? (($approvedRequests ?? 0) / $totalRequestsSafe) * 100 : 0;
+                $pendingPct = $totalRequestsSafe > 0 ? (($pendingRequests ?? 0) / $totalRequestsSafe) * 100 : 0;
+                $rejectedPct = $totalRequestsSafe > 0 ? (($rejectedRequests ?? 0) / $totalRequestsSafe) * 100 : 0;
+            @endphp
             <div class="space-y-4">
                 <!-- Approved -->
                 <div class="flex items-center justify-between">
@@ -105,7 +127,7 @@
                     <div class="flex items-center">
                         <span class="text-gray-900 font-bold mr-2">{{ $approvedRequests }}</span>
                         <div class="w-32 bg-gray-200 rounded-full h-2">
-                            <div class="bg-green-500 h-2 rounded-full" style="width: {{ $totalRequests > 0 ? ($approvedRequests / $totalRequests) * 100 : 0 }}%"></div>
+                            <div class="bg-green-500 h-2 rounded-full" style="width: {{ $approvedPct }}%"></div>
                         </div>
                     </div>
                 </div>
@@ -119,7 +141,7 @@
                     <div class="flex items-center">
                         <span class="text-gray-900 font-bold mr-2">{{ $pendingRequests }}</span>
                         <div class="w-32 bg-gray-200 rounded-full h-2">
-                            <div class="bg-orange-500 h-2 rounded-full" style="width: {{ $totalRequests > 0 ? ($pendingRequests / $totalRequests) * 100 : 0 }}%"></div>
+                            <div class="bg-orange-500 h-2 rounded-full" style="width: {{ $pendingPct }}%"></div>
                         </div>
                     </div>
                 </div>
@@ -133,7 +155,7 @@
                     <div class="flex items-center">
                         <span class="text-gray-900 font-bold mr-2">{{ $rejectedRequests }}</span>
                         <div class="w-32 bg-gray-200 rounded-full h-2">
-                            <div class="bg-red-500 h-2 rounded-full" style="width: {{ $totalRequests > 0 ? ($rejectedRequests / $totalRequests) * 100 : 0 }}%"></div>
+                            <div class="bg-red-500 h-2 rounded-full" style="width: {{ $rejectedPct }}%"></div>
                         </div>
                     </div>
                 </div>
@@ -167,7 +189,7 @@
             <div class="space-y-3">
                 @forelse($purokDistribution as $purok)
                 <div class="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl cursor-pointer hover:from-blue-100 hover:to-blue-200 transition-all"
-                     onclick="showPurokDetail('{{ addslashes($purok->purok) }}', {{ $purok->count }})">  
+                     onclick="showPurokDetail(@json($purok->purok), {{ $purok->count }})">
                     <div class="flex items-center">
                         <i data-feather="map-pin" class="w-4 h-4 text-blue-600 mr-2"></i>
                         <span class="text-gray-700 font-medium">{{ $purok->purok ?: 'Unknown Purok' }}</span>
@@ -201,7 +223,7 @@
                     <select id="assistanceFilter" class="px-2 py-1 text-xs border border-gray-300 rounded-lg">
                         <option value="">All Types</option>
                         <option value="4Ps">4Ps</option>
-                        <option value="AICS">AICS</option>
+                        <option value="WGP">WGP</option>
                         <option value="DSWD">DSWD</option>
                         <option value="Senior">Senior</option>
                         <option value="PWD">PWD</option>
@@ -327,17 +349,23 @@
     </div>
 </div>
 
+<script type="application/json" id="assistanceByPurokData">
+    @json($assistanceByPurok ?? [])
+</script>
+
 <script>
     // Initialize Feather icons
-    feather.replace();
+    window.feather?.replace?.();
 
-    const assistanceByPurok = @json($assistanceByPurok);
+    const assistanceByPurok = JSON.parse(
+        document.getElementById('assistanceByPurokData')?.textContent || '{}'
+    );
 
     const programColors = {
         'Pantawid Pamilyang Pilipino Program (4Ps)': 'bg-red-100 text-red-700',
-        'Targeted Cash Transfers (TCT)': 'bg-blue-100 text-blue-700',
+        'Social Pension Program (SPP)': 'bg-blue-100 text-blue-700',
         'Sustainable Livelihood Program (SLP)': 'bg-orange-100 text-orange-700',
-        'Assistance to Individuals in Crisis Situations (AICS)': 'bg-yellow-100 text-yellow-700',
+        'Walang Gutom Program (WGP)': 'bg-yellow-100 text-yellow-700',
     };
 
     function showPurokDetail(purokName, totalCount) {
@@ -364,7 +392,7 @@
         }
 
         document.getElementById('purokModal').classList.remove('hidden');
-        feather.replace();
+        window.feather?.replace?.();
     }
 
     function closePurokModal() {
