@@ -23,6 +23,12 @@
         </div>
     @endif
 
+    @if(session('warning'))
+        <div class="mb-4 p-4 bg-amber-100 border border-amber-400 text-amber-800 rounded-lg">
+            {{ session('warning') }}
+        </div>
+    @endif
+
     <!-- SEARCH & FILTER -->
     <div class="bg-white p-4 rounded shadow mb-6 flex flex-wrap gap-4 items-center">
 

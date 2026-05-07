@@ -243,11 +243,13 @@ class AdminController extends Controller
             });
 
             $emailSent = $this->sendResidentRegistrationStatusEmail($resident, 'approved');
-            $message = $emailSent
-                ? 'Resident registration approved and notification email sent.'
-                : 'Resident registration approved, but the notification email could not be sent.';
+            if ($emailSent) {
+                return redirect()->back()->with('success', 'Resident registration approved and notification email sent.');
+            }
 
-            return redirect()->back()->with($emailSent ? 'success' : 'error', $message);
+            return redirect()->back()
+                ->with('success', 'Resident registration approved successfully.')
+                ->with('warning', 'Resident was approved, but notification email could not be sent.');
         } catch (\Exception $e) {
             Log::error('Failed to approve resident registration ID ' . $id . ': ' . $e->getMessage());
             return back()->with('error', 'Failed to approve resident registration. Please try again.');
@@ -298,11 +300,13 @@ class AdminController extends Controller
             });
 
             $emailSent = $this->sendResidentRegistrationStatusEmail($resident, 'rejected', $rejectionReason);
-            $message = $emailSent
-                ? 'Resident registration rejected and notification email sent.'
-                : 'Resident registration rejected, but the notification email could not be sent.';
+            if ($emailSent) {
+                return redirect()->back()->with('success', 'Resident registration rejected and notification email sent.');
+            }
 
-            return redirect()->back()->with($emailSent ? 'success' : 'error', $message);
+            return redirect()->back()
+                ->with('success', 'Resident registration rejected successfully.')
+                ->with('warning', 'Resident was rejected, but notification email could not be sent.');
         } catch (\Exception $e) {
             Log::error('Failed to reject resident registration ID ' . $id . ': ' . $e->getMessage());
             return back()->with('error', 'Failed to reject resident registration. Please try again.');
