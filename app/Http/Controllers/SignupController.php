@@ -69,7 +69,7 @@ class SignupController extends Controller
             ])->filter(fn ($part) => $part !== null && trim((string) $part) !== '')->implode(', ');
             $residentIdFilePath = $request->file('resident_id_file')->store('resident-ids', 'public');
 
-            $user = User::create([
+            User::create([
                 'name' => $fullName,
                 'email' => $request->email,
                 'contact_number' => $request->contact_number,
@@ -89,10 +89,11 @@ class SignupController extends Controller
                 'is_indigent' => $request->cash_assistance_programs,
                 'purpose' => 'Resident Registration',
                 'date_issued' => now()->format('Y-m-d'),
+                'registration_status' => 'pending',
+                'registration_rejection_reason' => null,
             ]);
 
-            Auth::login($user);
-            return redirect()->route('user.dashboard')->with('success', 'Registration successful! Welcome to your dashboard.');
+            return redirect()->route('login')->with('success', 'Registration submitted successfully. Please wait for administrator approval before logging in.');
         } catch (\Exception $e) {
             if (isset($residentIdFilePath)) {
                 Storage::disk('public')->delete($residentIdFilePath);
@@ -112,7 +113,37 @@ class SignupController extends Controller
         try {
             $user = User::where('email', $request->username)->first();
 
-            if ($user && Hash::check($request->password, $user->password)) {
+            $passwordMatches = false;
+            if ($user) {
+                // Preferred: hashed password check.
+                $passwordMatches = Hash::check($request->password, (string) $user->password);
+
+                // Backward compatibility: some legacy accounts may have stored plain text passwords.
+                // If it matches exactly, re-hash once and continue.
+                if (!$passwordMatches && hash_equals((string) $user->password, (string) $request->password)) {
+                    $user->password = $request->password; // triggers 'hashed' cast
+                    $user->save();
+                    $passwordMatches = true;
+                }
+            }
+
+            if ($user && $passwordMatches) {
+                if ($user->role === 'resident') {
+                    if ($user->registration_status === 'pending') {
+                        return back()->with('error', 'Your registration is still pending administrator review.');
+                    }
+
+                    if ($user->registration_status === 'rejected') {
+                        $reason = trim((string) $user->registration_rejection_reason);
+                        $message = 'Your registration request was rejected.';
+                        if ($reason !== '') {
+                            $message .= ' Reason: ' . $reason;
+                        }
+
+                        return back()->with('error', $message);
+                    }
+                }
+
                 Auth::login($user);
                 if ($user->role === 'admin') {
                     return redirect()->route('home.admin')->with('success', 'Admin login successful!');

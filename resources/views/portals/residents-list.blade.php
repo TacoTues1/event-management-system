@@ -50,6 +50,7 @@
                     <th class="px-4 py-3 text-left">Age</th>
                     <th class="px-4 py-3 text-left">Civil Status</th>
                     <th class="px-4 py-3 text-left">Purok</th>
+                    <th class="px-4 py-3 text-left">Registration Status</th>
                     <th class="px-4 py-3 text-center min-w-[290px]">Actions</th>
                 </tr>
             </thead>
@@ -64,7 +65,19 @@
                         <td class="px-4 py-2">{{ $resident->age }}</td>
                         <td class="px-4 py-2">{{ $resident->civil_status }}</td>
                         <td class="px-4 py-2">{{ $resident->purok }}</td>
-                        <td class="px-4 py-3 text-center align-middle min-w-[330px]">
+                        <td class="px-4 py-2">
+                            @php
+                                $status = $resident->registration_status ?? 'approved';
+                            @endphp
+                            @if($status === 'pending')
+                                <span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">Pending</span>
+                            @elseif($status === 'rejected')
+                                <span class="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">Rejected</span>
+                            @else
+                                <span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Approved</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 text-center align-middle min-w-[360px]">
                             <div class="grid grid-cols-3 gap-2 items-stretch">
                                 <button onclick='showResidentDetails(@json($resident))' class="inline-flex h-10 w-full items-center justify-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold leading-none text-blue-700 transition hover:bg-blue-100 sm:text-sm">
                                     View
@@ -83,7 +96,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-4 py-6 text-center text-gray-500">
+                        <td colspan="8" class="px-4 py-6 text-center text-gray-500">
                             No residents found.
                         </td>
                     </tr>
@@ -92,6 +105,50 @@
             </tbody>
         </table>
 </div>
+</div>
+
+<!-- REJECT REGISTRATION MODAL -->
+<div id="rejectRegistrationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl max-w-xl w-full mx-4">
+        <div class="p-6 border-b">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800">Reject Registration</h3>
+                <button type="button" onclick="closeRejectRegistrationModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <form id="rejectRegistrationForm" method="POST" class="p-6">
+            @csrf
+            <div class="space-y-4">
+                <p class="text-sm text-gray-600">Select the rejection reason for <span id="rejectResidentName" class="font-semibold text-gray-800"></span>.</p>
+                <div>
+                    <label for="rejection_reason_option" class="block text-sm font-medium text-gray-700 mb-1">Rejection Reason</label>
+                    <select name="rejection_reason_option" id="rejection_reason_option" class="w-full border rounded px-3 py-2" required onchange="toggleCustomRegistrationReason()">
+                        <option value="">Select a reason</option>
+                        <option value="Incorrect picture attached">Incorrect picture attached</option>
+                        <option value="Invalid address">Invalid address</option>
+                        <option value="Unclear image">Unclear image</option>
+                        <option value="Incorrect financial assistance tagging">Incorrect financial assistance tagging</option>
+                        <option value="Duplicate existing account">Duplicate existing account</option>
+                        <option value="Uploaded ID mismatch">Uploaded ID mismatch</option>
+                        <option value="Not a member of any financial assistance program">Not a member of any financial assistance program</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+                <div id="customRegistrationReasonWrapper" class="hidden">
+                    <label for="rejection_reason_custom" class="block text-sm font-medium text-gray-700 mb-1">Detailed Reason</label>
+                    <textarea name="rejection_reason_custom" id="rejection_reason_custom" rows="3" class="w-full border rounded px-3 py-2" placeholder="Provide a detailed rejection reason"></textarea>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3 border-t pt-4">
+                <button type="button" onclick="closeRejectRegistrationModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Submit Rejection</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- RESIDENT DETAILS MODAL -->
@@ -187,10 +244,23 @@
                 </div>
             </div>
         </div>
-        <div class="p-6 border-t flex justify-end">
-            <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
-                Close
-            </button>
+        <div class="p-6 border-t space-y-3">
+            <div id="modalRegistrationActions" class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <form id="approveRegistrationForm" method="POST" onsubmit="return confirm('Approve this resident registration?');" class="m-0 w-full">
+                    @csrf
+                    <button type="submit" class="inline-flex h-11 w-full items-center justify-center rounded-lg border border-emerald-200 bg-emerald-500 px-4 py-2 text-sm font-semibold leading-none text-white shadow-sm transition hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-200">
+                        Approve Registration
+                    </button>
+                </form>
+                <button id="modalRejectRegistrationButton" type="button" class="inline-flex h-11 w-full items-center justify-center rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-semibold leading-none text-red-600 shadow-sm transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200">
+                    Reject Registration
+                </button>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="closeModal()" class="inline-flex h-11 items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+                    Close
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -354,6 +424,8 @@
 <script>
 const updateResidentRouteTemplate = "{{ route('admin.residents.update', ['id' => '__ID__']) }}";
 const residentIdFileRouteTemplate = "{{ route('admin.residents.id-file', ['id' => '__ID__']) }}";
+const approveRegistrationRouteTemplate = "{{ route('admin.residents.approve-registration', ['id' => '__ID__']) }}";
+const rejectRegistrationRouteTemplate = "{{ route('admin.residents.reject-registration', ['id' => '__ID__']) }}";
 
 function buildResidentIdFileUrl(residentId) {
     if (!residentId) {
@@ -374,6 +446,30 @@ function openImageViewerModal(imageUrl) {
     imageViewerModalImage.src = imageUrl;
     imageViewerModal.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
+}
+
+function openRejectRegistrationModal(resident) {
+    const form = document.getElementById('rejectRegistrationForm');
+    form.action = rejectRegistrationRouteTemplate.replace('__ID__', resident.user_id);
+    document.getElementById('rejectResidentName').textContent = resident.name || 'this resident';
+    document.getElementById('rejection_reason_option').value = '';
+    document.getElementById('rejection_reason_custom').value = '';
+    toggleCustomRegistrationReason();
+    document.getElementById('rejectRegistrationModal').classList.remove('hidden');
+}
+
+function closeRejectRegistrationModal() {
+    document.getElementById('rejectRegistrationModal').classList.add('hidden');
+}
+
+function toggleCustomRegistrationReason() {
+    const selected = document.getElementById('rejection_reason_option').value;
+    const customWrapper = document.getElementById('customRegistrationReasonWrapper');
+    const customInput = document.getElementById('rejection_reason_custom');
+    const isOther = selected === 'Others';
+
+    customWrapper.classList.toggle('hidden', !isOther);
+    customInput.required = isOther;
 }
 
 function closeImageViewerModal() {
@@ -464,6 +560,14 @@ function showResidentDetails(resident) {
             openImageViewerModal(activeImageUrl);
         };
     }
+
+    const approveRegistrationForm = document.getElementById('approveRegistrationForm');
+    const modalRejectRegistrationButton = document.getElementById('modalRejectRegistrationButton');
+
+    approveRegistrationForm.action = approveRegistrationRouteTemplate.replace('__ID__', resident.user_id);
+    modalRejectRegistrationButton.onclick = function() {
+        openRejectRegistrationModal(resident);
+    };
 
     document.getElementById('residentModal').classList.remove('hidden');
 }

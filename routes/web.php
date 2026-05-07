@@ -118,6 +118,14 @@ Route::put('/residents/{id}', [AdminController::class, 'updateResident'])
     ->middleware(['auth', 'admin'])
     ->name('admin.residents.update');
 
+Route::post('/residents/{id}/approve-registration', [AdminController::class, 'approveResidentRegistration'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.residents.approve-registration');
+
+Route::post('/residents/{id}/reject-registration', [AdminController::class, 'rejectResidentRegistration'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.residents.reject-registration');
+
 Route::delete('/residents/{id}', [AdminController::class, 'archiveUser'])
     ->middleware(['auth', 'admin'])
     ->name('admin.residents.delete');

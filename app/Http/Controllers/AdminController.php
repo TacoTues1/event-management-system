@@ -7,12 +7,14 @@ use App\Models\DocumentRequest;
 use App\Models\User;
 use App\Models\Event;
 use App\Models\AdminLog;
+use App\Mail\ResidentRegistrationStatusMail;
 use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
 class AdminController extends Controller
@@ -124,7 +126,10 @@ class AdminController extends Controller
             });
         }
 
-        $residents = $query->orderBy('name')->get();
+        $residents = $query
+            ->orderByRaw("CASE registration_status WHEN 'pending' THEN 0 WHEN 'rejected' THEN 1 ELSE 2 END")
+            ->orderBy('name')
+            ->get();
 
         return view('portals.residents-list', compact('residents'));
     }
@@ -220,6 +225,89 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             Log::error('Failed to update resident ID ' . $id . ': ' . $e->getMessage());
             return back()->with('error', 'Failed to update resident details. Please try again.')->withInput();
+        }
+    }
+
+    public function approveResidentRegistration($id)
+    {
+        $resident = User::where('role', 'resident')->where('user_id', $id)->firstOrFail();
+
+        try {
+            DB::transaction(function () use ($resident) {
+                $resident->update([
+                    'registration_status' => 'approved',
+                    'registration_rejection_reason' => null,
+                ]);
+
+                Mail::to($resident->email)->send(new ResidentRegistrationStatusMail(
+                    resident: $resident,
+                    status: 'approved',
+                    loginUrl: route('login'),
+                ));
+
+                $this->logActivity('APPROVE_RESIDENT_REGISTRATION', "Approved registration for resident: {$resident->name} (ID: {$resident->user_id})");
+            });
+
+            return redirect()->back()->with('success', 'Resident registration approved and notification email sent.');
+        } catch (\Exception $e) {
+            Log::error('Failed to approve resident registration ID ' . $id . ': ' . $e->getMessage());
+            return back()->with('error', 'Failed to approve resident registration. Please try again.');
+        }
+    }
+
+    public function rejectResidentRegistration(Request $request, $id)
+    {
+        $resident = User::where('role', 'resident')->where('user_id', $id)->firstOrFail();
+        $reasonOptions = [
+            'Incorrect picture attached',
+            'Invalid address',
+            'Unclear image',
+            'Incorrect financial assistance tagging',
+            'Duplicate existing account',
+            'Uploaded ID mismatch',
+            'Not a member of any financial assistance program',
+            'Others',
+        ];
+
+        $validated = $request->validate([
+            'rejection_reason_option' => 'required|string|in:' . implode(',', $reasonOptions),
+            'rejection_reason_custom' => 'nullable|string|max:500|required_if:rejection_reason_option,Others',
+        ], [
+            'rejection_reason_option.required' => 'Please select a rejection reason.',
+            'rejection_reason_option.in' => 'Please select a valid rejection reason.',
+            'rejection_reason_custom.required_if' => 'Please provide a detailed rejection reason when selecting Others.',
+        ]);
+
+        $rejectionReason = $validated['rejection_reason_option'] === 'Others'
+            ? trim((string) ($validated['rejection_reason_custom'] ?? ''))
+            : $validated['rejection_reason_option'];
+
+        if ($validated['rejection_reason_option'] === 'Others' && $rejectionReason === '') {
+            return redirect()->back()->withErrors([
+                'rejection_reason_custom' => 'Please provide a detailed rejection reason when selecting Others.',
+            ])->withInput();
+        }
+
+        try {
+            DB::transaction(function () use ($resident, $rejectionReason) {
+                $resident->update([
+                    'registration_status' => 'rejected',
+                    'registration_rejection_reason' => $rejectionReason,
+                ]);
+
+                Mail::to($resident->email)->send(new ResidentRegistrationStatusMail(
+                    resident: $resident,
+                    status: 'rejected',
+                    reason: $rejectionReason,
+                ));
+
+                $this->logActivity('REJECT_RESIDENT_REGISTRATION', "Rejected registration for resident: {$resident->name} (ID: {$resident->user_id})");
+            });
+
+            return redirect()->back()->with('success', 'Resident registration rejected and notification email sent.');
+        } catch (\Exception $e) {
+            Log::error('Failed to reject resident registration ID ' . $id . ': ' . $e->getMessage());
+            return back()->with('error', 'Failed to reject resident registration. Please try again.');
         }
     }
 
@@ -647,7 +735,7 @@ class AdminController extends Controller
             ])->filter(fn ($part) => $part !== null && trim((string) $part) !== '')->implode(', ');
             $residentIdFilePath = $request->file('resident_id_file')->store('resident-ids', 'public');
 
-            DB::transaction(function () use ($request, $age, $fullName, $fullAddress, $residentIdFilePath) {
+            $user = DB::transaction(function () use ($request, $age, $fullName, $fullAddress, $residentIdFilePath) {
                 $user = User::create([
                     'name' => $fullName,
                     'email' => $request->email,
@@ -668,11 +756,21 @@ class AdminController extends Controller
                     'is_indigent' => $request->cash_assistance_programs,
                     'purpose' => 'Resident Registration',
                     'date_issued' => now()->format('Y-m-d'),
+                    'registration_status' => 'approved',
+                    'registration_rejection_reason' => null,
                 ]);
                 $this->logActivity('ADD_RESIDENT', "Added new resident: {$fullName}");
+
+                return $user;
             });
 
-            return redirect()->route('add-user.portal')->with('success', 'Resident registered successfully!');
+            Mail::to($user->email)->send(new ResidentRegistrationStatusMail(
+                resident: $user,
+                status: 'approved',
+                loginUrl: route('login'),
+            ));
+
+            return redirect()->route('add-user.portal')->with('success', 'Resident registered successfully! An approval email was sent to the resident.');
         } catch (\Exception $e) {
             if (isset($residentIdFilePath)) {
                 Storage::disk('public')->delete($residentIdFilePath);

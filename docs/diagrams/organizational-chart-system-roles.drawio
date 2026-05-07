@@ -1,0 +1,45 @@
+<mxfile host="app.diagrams.net" modified="2026-05-07T14:00:00.000Z" agent="cursor" version="24.7.17" type="device">
+  <diagram id="roles-only" name="System roles (Admin / Resident)">
+    <mxGraphModel dx="1100" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t1" value="EMS User Roles (not barangay chain of command)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontStyle=1;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="185" y="30" width="800" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" value="Figure shows only account types in the system. Barangay office users (captain, secretary, staff) all use the Admin role." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=11;fontStyle=2;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="120" y="68" width="930" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="admin" value="Admin&#xa;(Barangay office — admin portal)" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1;fontStyle=0" vertex="1" parent="1">
+          <mxGeometry x="200" y="200" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="resident" value="Resident&#xa;(Barangay constituent — resident portal)" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1;fontStyle=0" vertex="1" parent="1">
+          <mxGeometry x="600" y="200" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="rel" value="served by / interacts with" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;startArrow=open;startFill=0;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=11;" edge="1" parent="1" source="admin" target="resident">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="roles-vertical" name="Alternative — stacked roles (with caption)">
+    <mxGraphModel dx="1100" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0b" />
+        <mxCell id="1b" parent="0b" />
+        <mxCell id="tvb" value="EMS access levels — not supervisory hierarchy" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontStyle=1;fontSize=14;fontColor=#444444;fontStyle=2" vertex="1" parent="1b">
+          <mxGeometry x="235" y="40" width="700" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="abox" value="Admin&#xa;(Barangay office users)" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1;" vertex="1" parent="1b">
+          <mxGeometry x="415" y="120" width="340" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rbox" value="Resident&#xa;(Constituents — resident portal)" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1;" vertex="1" parent="1b">
+          <mxGeometry x="415" y="300" width="340" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="lnk" value="Higher privilege in EMS only" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;dashed=1;fontSize=11;fontColor=#666666;" edge="1" parent="1b" source="abox" target="rbox">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

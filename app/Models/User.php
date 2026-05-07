@@ -41,6 +41,8 @@ class User extends Authenticatable
         'purpose',
         'date_issued',
         'is_archived',
+        'registration_status',
+        'registration_rejection_reason',
         'created_at',
     ];
 
