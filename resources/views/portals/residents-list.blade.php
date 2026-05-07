@@ -511,6 +511,16 @@ function showResidentDetails(resident) {
     const normalizedIdFilePath = String(idFilePath).toLowerCase();
     const isPdfFile = normalizedIdFilePath.endsWith('.pdf');
     let activeImageUrl = '';
+    const showNoPreviewMessage = function(message) {
+        idFileImage.src = '';
+        idFileImage.classList.add('hidden');
+        idFileImage.onerror = null;
+        idFileImage.onload = null;
+        idFileFrame.src = '';
+        idFileFrame.classList.add('hidden');
+        idFileNone.textContent = message;
+        idFileNone.classList.remove('hidden');
+    };
 
     if (idFilePath) {
         const fileUrl = buildResidentIdFileUrl(resident.user_id);
@@ -529,9 +539,7 @@ function showResidentDetails(resident) {
             idFileFrame.classList.remove('hidden');
         } else {
             idFileImage.onerror = function() {
-                idFileImage.classList.add('hidden');
-                idFileFrame.src = fileUrl;
-                idFileFrame.classList.remove('hidden');
+                showNoPreviewMessage('ID file is unavailable or cannot be loaded.');
             };
 
             idFileImage.onload = function() {

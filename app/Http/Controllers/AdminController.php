@@ -239,16 +239,15 @@ class AdminController extends Controller
                     'registration_rejection_reason' => null,
                 ]);
 
-                Mail::to($resident->email)->send(new ResidentRegistrationStatusMail(
-                    resident: $resident,
-                    status: 'approved',
-                    loginUrl: route('login'),
-                ));
-
                 $this->logActivity('APPROVE_RESIDENT_REGISTRATION', "Approved registration for resident: {$resident->name} (ID: {$resident->user_id})");
             });
 
-            return redirect()->back()->with('success', 'Resident registration approved and notification email sent.');
+            $emailSent = $this->sendResidentRegistrationStatusEmail($resident, 'approved');
+            $message = $emailSent
+                ? 'Resident registration approved and notification email sent.'
+                : 'Resident registration approved, but the notification email could not be sent.';
+
+            return redirect()->back()->with($emailSent ? 'success' : 'error', $message);
         } catch (\Exception $e) {
             Log::error('Failed to approve resident registration ID ' . $id . ': ' . $e->getMessage());
             return back()->with('error', 'Failed to approve resident registration. Please try again.');
@@ -295,19 +294,41 @@ class AdminController extends Controller
                     'registration_rejection_reason' => $rejectionReason,
                 ]);
 
-                Mail::to($resident->email)->send(new ResidentRegistrationStatusMail(
-                    resident: $resident,
-                    status: 'rejected',
-                    reason: $rejectionReason,
-                ));
-
                 $this->logActivity('REJECT_RESIDENT_REGISTRATION', "Rejected registration for resident: {$resident->name} (ID: {$resident->user_id})");
             });
 
-            return redirect()->back()->with('success', 'Resident registration rejected and notification email sent.');
+            $emailSent = $this->sendResidentRegistrationStatusEmail($resident, 'rejected', $rejectionReason);
+            $message = $emailSent
+                ? 'Resident registration rejected and notification email sent.'
+                : 'Resident registration rejected, but the notification email could not be sent.';
+
+            return redirect()->back()->with($emailSent ? 'success' : 'error', $message);
         } catch (\Exception $e) {
             Log::error('Failed to reject resident registration ID ' . $id . ': ' . $e->getMessage());
             return back()->with('error', 'Failed to reject resident registration. Please try again.');
+        }
+    }
+
+    private function sendResidentRegistrationStatusEmail(User $resident, string $status, ?string $reason = null): bool
+    {
+        try {
+            Mail::to($resident->email)->send(new ResidentRegistrationStatusMail(
+                resident: $resident,
+                status: $status,
+                reason: $reason,
+                loginUrl: route('login'),
+            ));
+
+            return true;
+        } catch (\Throwable $mailException) {
+            Log::error(sprintf(
+                'Failed sending registration status email to resident ID %s (%s): %s',
+                $resident->user_id,
+                $resident->email,
+                $mailException->getMessage()
+            ));
+
+            return false;
         }
     }
 
@@ -396,7 +417,7 @@ class AdminController extends Controller
         $resident = User::where('role', 'resident')->where('user_id', $id)->firstOrFail();
 
         if (empty($resident->resident_id_file)) {
-            abort(404, 'No ID file uploaded for this resident.');
+            return response('', 204);
         }
 
         $rawPath = str_replace('\\', '/', trim($resident->resident_id_file));
@@ -422,7 +443,7 @@ class AdminController extends Controller
         }
 
         if (!$resolvedPath) {
-            abort(404, 'ID file not found.');
+            return response('', 204);
         }
 
         $fileContent = Storage::disk('public')->get($resolvedPath);
