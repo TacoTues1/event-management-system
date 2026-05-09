@@ -40,35 +40,27 @@
             </div>
             
             @if($request->status === 'pending')
-            <div class="flex gap-3 mt-6">
-                <form action="{{ route('document-request.approve', $request->request_id) }}" method="POST" class="flex-1">
+            <div class="mt-6 grid grid-cols-1 items-stretch gap-3 sm:grid-cols-3">
+                <form action="{{ route('document-request.approve', $request->request_id) }}" method="POST" class="contents">
                     @csrf
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-medium transition-all duration-200">
+                    <button type="submit" class="flex h-12 w-full min-w-0 items-center justify-center rounded-xl bg-green-600 px-3 text-center text-sm font-medium leading-tight text-white transition-all duration-200 hover:bg-green-700">
                         Approve Request
                     </button>
                 </form>
-                <form action="{{ route('document-request.reject', $request->request_id) }}" method="POST" class="flex-1 space-y-2">
+                <form action="{{ route('document-request.reject', $request->request_id) }}" method="POST" class="contents">
                     @csrf
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-medium transition-all duration-200">
-                            Reject Request
-                        </button>
-                        <select name="rejection_reason_option" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" onchange="toggleCustomRejectReason(this)" required>
-                            <option value="" disabled selected>Select option</option>
-                            <option value="Duplicate Request">Duplicate Request</option>
-                            <option value="Pending/Unsettled Issues">Pending/Unsettled Issues</option>
-                            <option value="Incorrect Information">Incorrect Information</option>
-                            <option value="Others">Others</option>
-                        </select>
-                    </div>
-                    <div class="hidden custom-reason-wrapper grid grid-cols-2 gap-2">
-                        <div></div>
-                        <input
-                            type="text"
-                            name="rejection_reason_custom"
-                            class="custom-reason-input w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-                            placeholder="Provide Reason"
-                        >
+                    <button type="submit" class="flex h-12 w-full min-w-0 items-center justify-center rounded-xl bg-red-600 px-3 text-center text-sm font-medium leading-tight text-white transition-all duration-200 hover:bg-red-700">
+                        Reject Request
+                    </button>
+                    <select name="rejection_reason_option" aria-label="Rejection reason" class="h-12 w-full min-w-0 rounded-xl border border-slate-300 px-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500/20" onchange="toggleCustomRejectReason(this)" required>
+                        <option value="" disabled selected>Select option</option>
+                        <option value="Duplicate Request">Duplicate Request</option>
+                        <option value="Pending/Unsettled Issues">Pending/Unsettled Issues</option>
+                        <option value="Incorrect Information">Incorrect Information</option>
+                        <option value="Others">Others</option>
+                    </select>
+                    <div class="hidden custom-reason-wrapper sm:col-start-3">
+                        <input type="text" name="rejection_reason_custom" class="custom-reason-input h-12 w-full min-w-0 rounded-xl border border-slate-300 px-3 text-sm" placeholder="Provide Reason">
                     </div>
                 </form>
             </div>

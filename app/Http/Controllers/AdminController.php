@@ -325,11 +325,19 @@ class AdminController extends Controller
 
             return true;
         } catch (\Throwable $mailException) {
+            $smtp = config('mail.mailers.smtp');
+            $from = config('mail.from');
+
             Log::error(sprintf(
-                'Failed sending registration status email to resident ID %s (%s): %s',
+                'Failed sending registration status email to resident ID %s (%s): %s | mailer=%s host=%s port=%s encryption=%s from=%s',
                 $resident->user_id,
                 $resident->email,
-                $mailException->getMessage()
+                $mailException->getMessage(),
+                config('mail.default'),
+                data_get($smtp, 'host'),
+                data_get($smtp, 'port'),
+                data_get($smtp, 'encryption') ?: 'none',
+                data_get($from, 'address')
             ));
 
             return false;
@@ -789,13 +797,14 @@ class AdminController extends Controller
                 return $user;
             });
 
-            Mail::to($user->email)->send(new ResidentRegistrationStatusMail(
-                resident: $user,
-                status: 'approved',
-                loginUrl: route('login'),
-            ));
+            $emailSent = $this->sendResidentRegistrationStatusEmail($user, 'approved');
+            if ($emailSent) {
+                return redirect()->route('add-user.portal')->with('success', 'Resident registered successfully! An approval email was sent to the resident.');
+            }
 
-            return redirect()->route('add-user.portal')->with('success', 'Resident registered successfully! An approval email was sent to the resident.');
+            return redirect()->route('add-user.portal')
+                ->with('success', 'Resident registered successfully!')
+                ->with('warning', 'The resident was created, but the approval email could not be sent. Please check the production mail settings.');
         } catch (\Exception $e) {
             if (isset($residentIdFilePath)) {
                 Storage::disk('public')->delete($residentIdFilePath);
