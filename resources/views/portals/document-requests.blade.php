@@ -17,7 +17,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document Type</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Requested</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -46,31 +46,9 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $request->created_at->format('M d, Y') }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="inline-flex items-center gap-3">
-                            <a href="{{ route('document-request.view', $request->request_id) }}" class="inline-flex items-center leading-5 text-sm font-medium text-blue-600 hover:text-blue-900">View</a>
-                            @if($request->status === 'pending')
-                            <form action="{{ route('document-request.approve', $request->request_id) }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="inline-flex items-center leading-5 text-sm font-medium text-green-600 hover:text-green-900">Approve</button>
-                            </form>
-                            <form action="{{ route('document-request.reject', $request->request_id) }}" method="POST" class="inline-flex items-center gap-2 relative">
-                                @csrf
-                                <button type="submit" class="inline-flex items-center leading-5 text-sm font-medium text-red-600 hover:text-red-900">Reject</button>
-                                <div class="relative">
-                                    <div class="hidden custom-reason-wrapper absolute left-0 top-full mt-2 z-20">
-                                        <input
-                                            type="text"
-                                            name="rejection_reason_custom"
-                                            class="custom-reason-input w-44 border border-gray-300 rounded px-2 py-1 text-sm"
-                                            placeholder="Provide Reason"
-                                        >
-                                    </div>
-                                </div>
-                            </form>
-                            @else
-                            <span class="text-gray-400">{{ ucfirst($request->status) }}</span>
-                            @endif
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <div class="inline-flex items-center justify-center gap-3">
+                                <a href="{{ route('document-request.view', $request->request_id) }}" class="inline-flex items-center leading-5 text-sm font-medium text-blue-600 hover:text-blue-900">View</a>
                             </div>
                         </td>
                     </tr>
@@ -108,17 +86,6 @@
 </div>
 
 <script>
-function toggleCustomRejectReason(selectElement) {
-    const customWrapper = selectElement.form.querySelector('.custom-reason-wrapper');
-    const customInput = selectElement.form.querySelector('.custom-reason-input');
-    if (!customInput || !customWrapper) return;
-
-    const shouldShow = selectElement.value === 'Others';
-    customWrapper.classList.toggle('hidden', !shouldShow);
-    customInput.required = shouldShow;
-    if (!shouldShow) customInput.value = '';
-}
-
 function showRequestDetails(requestId) {
     fetch(`/document-request/${requestId}`)
         .then(response => response.json())

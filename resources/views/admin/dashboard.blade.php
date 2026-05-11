@@ -231,14 +231,38 @@
             </div>
             <div id="assistanceList" class="space-y-3 max-h-80 overflow-y-auto">
                 @forelse($residentsWithAssistance as $index => $resident)
-                <div class="resident-item flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-green-100 rounded-xl" 
+                @php
+                    $assistanceStyle = match ($resident->is_indigent) {
+                        'Pantawid Pamilyang Pilipino Program (4Ps)' => [
+                            'row' => 'bg-gradient-to-r from-red-50 to-red-100',
+                            'badge' => 'bg-red-600 text-white',
+                        ],
+                        'Social Pension Program (SPP)' => [
+                            'row' => 'bg-gradient-to-r from-blue-50 to-blue-100',
+                            'badge' => 'bg-blue-600 text-white',
+                        ],
+                        'Sustainable Livelihood Program (SLP)' => [
+                            'row' => 'bg-gradient-to-r from-orange-50 to-orange-100',
+                            'badge' => 'bg-orange-600 text-white',
+                        ],
+                        'Walang Gutom Program (WGP)' => [
+                            'row' => 'bg-gradient-to-r from-yellow-50 to-yellow-100',
+                            'badge' => 'bg-yellow-500 text-white',
+                        ],
+                        default => [
+                            'row' => 'bg-gradient-to-r from-gray-50 to-gray-100',
+                            'badge' => 'bg-gray-600 text-white',
+                        ],
+                    };
+                @endphp
+                <div class="resident-item flex items-center justify-between p-3 {{ $assistanceStyle['row'] }} rounded-xl" 
                      data-purok="{{ $resident->purok }}" 
                      data-assistance="{{ $resident->is_indigent }}">
                     <div>
                         <p class="text-gray-900 font-medium text-sm"><span class="text-gray-400 mr-1">{{ $index + 1 }}.</span>{{ $resident->name }}</p>
                         <p class="text-gray-500 text-xs">{{ $resident->purok }}</p>
                     </div>
-                    <span class="bg-green-600 text-white px-2 py-1 rounded-full text-xs font-semibold">{{ $resident->is_indigent }}</span>
+                    <span class="{{ $assistanceStyle['badge'] }} px-2 py-1 rounded-full text-xs font-semibold">{{ $resident->is_indigent }}</span>
                 </div>
                 @empty
                 <div class="text-center py-4 text-gray-500">

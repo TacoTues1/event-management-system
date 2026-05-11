@@ -9,9 +9,11 @@
     <!-- PAGE HEADER -->
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Admins List</h2>
+        @if($canCreateAdmins)
         <a href="{{ route('admin.create-admin') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
             Add New Admin
         </a>
+        @endif
     </div>
 
     @if(session('success'))

@@ -388,6 +388,12 @@ class AdminController extends Controller
 
     public function adminsList(Request $request)
     {
+        if (! auth()->user()?->canCreateAdmins()) {
+            return redirect()
+                ->route('admin.dashboard')
+                ->with('error', 'Only the primary admin account can view the admins list.');
+        }
+
         $query = User::where('role', 'admin')->where('is_archived', false);
 
         if ($request->filled('search')) {
@@ -398,8 +404,9 @@ class AdminController extends Controller
         }
 
         $admins = $query->orderBy('name')->get();
+        $canCreateAdmins = auth()->user()?->canCreateAdmins() ?? false;
 
-        return view('admin.admins-list', compact('admins'));
+        return view('admin.admins-list', compact('admins', 'canCreateAdmins'));
     }
 
     public function archiveList(Request $request)
@@ -617,11 +624,23 @@ class AdminController extends Controller
 
     public function createAdminForm()
     {
+        if (! auth()->user()?->canCreateAdmins()) {
+            return redirect()
+                ->route('admin.dashboard')
+                ->with('error', 'Only the primary admin account can create another admin.');
+        }
+
         return view('admin.create-admin');
     }
 
     public function createAdmin(Request $request)
     {
+        if (! auth()->user()?->canCreateAdmins()) {
+            return redirect()
+                ->route('admin.dashboard')
+                ->with('error', 'Only the primary admin account can create another admin.');
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',

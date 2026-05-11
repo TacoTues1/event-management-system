@@ -16,44 +16,117 @@
         <div class="p-6">
             <!-- Filter Section -->
             <div class="mb-4">
+                <div class="mb-4 grid gap-4 lg:grid-cols-2">
+                    <div>
                 <h3 class="text-sm font-semibold text-gray-700 mb-2">Filter by Cash Assistance Program</h3>
-                <div class="flex flex-wrap gap-2 mb-4">
-                    <button onclick="filterByProgram('all')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-600 text-white" data-program="all">
+                <div class="grid max-w-2xl grid-cols-1 gap-2 sm:grid-cols-2">
+                    <button onclick="filterByProgram('all')" class="filter-btn inline-flex min-h-[40px] w-full items-center justify-center gap-2 rounded-lg border border-indigo-600 bg-indigo-600 px-4 py-2 text-center text-sm font-medium text-white shadow-sm transition-all sm:col-span-2" data-program="all">
                         All Programs
                     </button>
-                    <button onclick="filterByProgram('Pantawid Pamilyang Pilipino Program (4Ps)')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-red-500 hover:text-white" data-program="Pantawid Pamilyang Pilipino Program (4Ps)">
-                        <span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>Pantawid Pamilyang Pilipino Program (4Ps)
+                    <button onclick="filterByProgram('Pantawid Pamilyang Pilipino Program (4Ps)')" class="filter-btn inline-flex min-h-[40px] w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-center text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-red-200 hover:bg-red-50" data-program="Pantawid Pamilyang Pilipino Program (4Ps)">
+                        <span class="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full bg-red-500"></span>Pantawid Pamilyang Pilipino Program (4Ps)
                         @if(($programCounts['Pantawid Pamilyang Pilipino Program (4Ps)'] ?? 0) > 0)
-                        <span class="ml-1 bg-red-100 text-red-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Pantawid Pamilyang Pilipino Program (4Ps)'] }}</span>
+                        <span class="bg-red-100 text-red-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Pantawid Pamilyang Pilipino Program (4Ps)'] }}</span>
                         @endif
                     </button>
-                    <button onclick="filterByProgram('Social Pension Program (SPP)')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-blue-500 hover:text-white" data-program="Social Pension Program (SPP)">
-                        <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span>Social Pension Program (SPP)
+                    <button onclick="filterByProgram('Social Pension Program (SPP)')" class="filter-btn inline-flex min-h-[40px] w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-center text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-blue-200 hover:bg-blue-50" data-program="Social Pension Program (SPP)">
+                        <span class="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full bg-blue-500"></span>Social Pension Program (SPP)
                         @if(($programCounts['Social Pension Program (SPP)'] ?? 0) > 0)
-                        <span class="ml-1 bg-blue-100 text-blue-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Social Pension Program (SPP)'] }}</span>
+                        <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Social Pension Program (SPP)'] }}</span>
                         @endif
                     </button>
-                    <button onclick="filterByProgram('Sustainable Livelihood Program (SLP)')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-orange-500 hover:text-white" data-program="Sustainable Livelihood Program (SLP)">
-                        <span class="inline-block w-3 h-3 rounded-full bg-orange-500 mr-2"></span>Sustainable Livelihood Program (SLP)
+                    <button onclick="filterByProgram('Sustainable Livelihood Program (SLP)')" class="filter-btn inline-flex min-h-[40px] w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-center text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-orange-200 hover:bg-orange-50" data-program="Sustainable Livelihood Program (SLP)">
+                        <span class="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full bg-orange-500"></span>Sustainable Livelihood Program (SLP)
                         @if(($programCounts['Sustainable Livelihood Program (SLP)'] ?? 0) > 0)
-                        <span class="ml-1 bg-orange-100 text-orange-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Sustainable Livelihood Program (SLP)'] }}</span>
+                        <span class="bg-orange-100 text-orange-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Sustainable Livelihood Program (SLP)'] }}</span>
                         @endif
                     </button>
-                    <button onclick="filterByProgram('Walang Gutom Program (WGP)')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-yellow-500 hover:text-white" data-program="Walang Gutom Program (WGP)">
-                        <span class="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>Walang Gutom Program (WGP)
+                    <button onclick="filterByProgram('Walang Gutom Program (WGP)')" class="filter-btn inline-flex min-h-[40px] w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-center text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-yellow-200 hover:bg-yellow-50" data-program="Walang Gutom Program (WGP)">
+                        <span class="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full bg-yellow-500"></span>Walang Gutom Program (WGP)
                         @if(($programCounts['Walang Gutom Program (WGP)'] ?? 0) > 0)
-                        <span class="ml-1 bg-yellow-100 text-yellow-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Walang Gutom Program (WGP)'] }}</span>
+                        <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-1.5 py-0.5 rounded-full">{{ $programCounts['Walang Gutom Program (WGP)'] }}</span>
                         @endif
                     </button>
                 </div>
+                    </div>
+
+                @php
+                    $assistanceProgramKeys = [
+                        'Pantawid Pamilyang Pilipino Program (4Ps)',
+                        'Social Pension Program (SPP)',
+                        'Sustainable Livelihood Program (SLP)',
+                        'Walang Gutom Program (WGP)',
+                    ];
+                    $programTotal = collect($assistanceProgramKeys)->sum(fn($program) => (int) ($programCounts[$program] ?? 0));
+                    $programChart = [
+                        'all' => [
+                            'label' => 'All',
+                            'bar' => 'bg-slate-600',
+                            'hover' => 'hover:bg-slate-700',
+                            'text' => 'text-slate-700',
+                        ],
+                        'Pantawid Pamilyang Pilipino Program (4Ps)' => [
+                            'label' => '4Ps',
+                            'bar' => 'bg-red-500',
+                            'hover' => 'hover:bg-red-600',
+                            'text' => 'text-red-700',
+                        ],
+                        'Social Pension Program (SPP)' => [
+                            'label' => 'SPP',
+                            'bar' => 'bg-blue-500',
+                            'hover' => 'hover:bg-blue-600',
+                            'text' => 'text-blue-700',
+                        ],
+                        'Sustainable Livelihood Program (SLP)' => [
+                            'label' => 'SLP',
+                            'bar' => 'bg-orange-500',
+                            'hover' => 'hover:bg-orange-600',
+                            'text' => 'text-orange-700',
+                        ],
+                        'Walang Gutom Program (WGP)' => [
+                            'label' => 'WGP',
+                            'bar' => 'bg-yellow-500',
+                            'hover' => 'hover:bg-yellow-600',
+                            'text' => 'text-yellow-700',
+                        ],
+                    ];
+                    $maxProgramCount = max($programTotal, collect($assistanceProgramKeys)->max(fn($program) => (int) ($programCounts[$program] ?? 0)), 1);
+                @endphp
+
+                <div class="rounded-xl border border-gray-100 bg-gray-50/80 p-3">
+                    <div class="mb-2 flex items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-700">Program Members Overview</h3>
+                            <p class="text-xs text-gray-500">Hover each bar to see the total</p>
+                        </div>
+                    </div>
+                    <div class="flex h-32 items-end justify-around gap-3 rounded-lg bg-white px-4 pb-2 pt-4 shadow-sm">
+                        @foreach($programChart as $program => $style)
+                            @php
+                                $count = $program === 'all'
+                                    ? $programTotal
+                                    : (int) ($programCounts[$program] ?? 0);
+                                $height = $count > 0 ? max(14, ($count / $maxProgramCount) * 100) : 4;
+                                $tooltipLabel = $program === 'all' ? 'All Programs' : $program;
+                            @endphp
+                            <div class="flex h-full flex-1 flex-col items-center justify-end gap-1" title="{{ $tooltipLabel }}: {{ $count }} member{{ $count === 1 ? '' : 's' }}">
+                                <div class="flex h-full w-full items-end justify-center">
+                                    <div class="w-8 rounded-t-md {{ $style['bar'] }} {{ $style['hover'] }} transition-colors" style="height: {{ $height }}%"></div>
+                                </div>
+                                <span class="text-[11px] font-semibold {{ $style['text'] }}">{{ $style['label'] }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                </div>
                 
                 <h3 class="text-sm font-semibold text-gray-700 mb-2">Filter by Purok</h3>
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="filterByPurok('all')" class="purok-btn px-4 py-2 rounded-lg font-medium transition-all bg-indigo-600 text-white" data-purok="all">
+                <div class="flex flex-wrap justify-center gap-2">
+                    <button onclick="filterByPurok('all')" class="purok-btn inline-flex min-h-[40px] items-center rounded-lg border border-indigo-600 bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all" data-purok="all">
                         All Puroks
                     </button>
                     @foreach(\Config::get('puroks') as $name => $coords)
-                    <button onclick="filterByPurok('{{ $name }}')" class="purok-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-indigo-500 hover:text-white" data-purok="{{ $name }}">
+                    <button onclick="filterByPurok('{{ $name }}')" class="purok-btn inline-flex min-h-[40px] items-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-indigo-200 hover:bg-indigo-50" data-purok="{{ $name }}">
                         {{ $name }}
                         @if(($purokCounts[$name] ?? 0) > 0)
                         <span class="ml-1 bg-indigo-100 text-indigo-700 text-xs font-semibold px-1.5 py-0.5 rounded-full purok-badge">{{ $purokCounts[$name] }}</span>
@@ -336,20 +409,55 @@
         const noResults = document.getElementById('noFilterResults');
         if (noResults) noResults.classList.toggle('hidden', visibleCards > 0);
     }
+
+    function getPurokCountForCurrentProgram(purok) {
+        if (currentProgramFilter === 'all') {
+            return purokCounts[purok] || 0;
+        }
+
+        return (purokProgramCounts[purok] || {})[currentProgramFilter] || 0;
+    }
+
+    function updatePurokBadges() {
+        document.querySelectorAll('.purok-btn').forEach(btn => {
+            const purok = btn.dataset.purok;
+            if (purok === 'all') return;
+
+            const count = getPurokCountForCurrentProgram(purok);
+            let badge = btn.querySelector('.purok-badge');
+
+            if (!badge && count > 0) {
+                badge = document.createElement('span');
+                badge.className = 'ml-1 text-xs font-semibold px-1.5 py-0.5 rounded-full purok-badge';
+                btn.appendChild(badge);
+            }
+
+            if (!badge) return;
+
+            badge.textContent = count;
+            badge.className = 'ml-1 text-xs font-semibold px-1.5 py-0.5 rounded-full purok-badge';
+            badge.classList.add(
+                btn.dataset.purok === currentPurokFilter ? 'bg-white' : 'bg-indigo-100',
+                'text-indigo-700'
+            );
+            badge.classList.toggle('hidden', count === 0);
+        });
+    }
     
     function filterByProgram(program) {
         currentProgramFilter = program;
         
         document.querySelectorAll('.filter-btn').forEach(btn => {
             if (btn.dataset.program === program) {
-                btn.classList.remove('bg-gray-200', 'text-gray-700');
-                btn.classList.add('bg-gray-600', 'text-white');
+                btn.classList.remove('border-gray-200', 'bg-white', 'text-slate-700', 'bg-gray-200', 'text-gray-700');
+                btn.classList.add('border-indigo-600', 'bg-indigo-600', 'text-white');
             } else {
-                btn.classList.remove('bg-gray-600', 'text-white', 'bg-red-500', 'bg-blue-500', 'bg-orange-500', 'bg-yellow-500');
-                btn.classList.add('bg-gray-200', 'text-gray-700');
+                btn.classList.remove('border-indigo-600', 'bg-indigo-600', 'border-slate-700', 'bg-slate-700', 'bg-gray-600', 'text-white', 'bg-red-500', 'bg-blue-500', 'bg-orange-500', 'bg-yellow-500');
+                btn.classList.add('border-gray-200', 'bg-white', 'text-slate-700');
             }
         });
         
+        updatePurokBadges();
         applyFilters();
         updateSummaryBar();
     }
@@ -359,15 +467,15 @@
         
         document.querySelectorAll('.purok-btn').forEach(btn => {
             if (btn.dataset.purok === purok) {
-                btn.classList.remove('bg-gray-200', 'text-gray-700');
-                btn.classList.add('bg-indigo-600', 'text-white');
+                btn.classList.remove('border-gray-200', 'bg-white', 'text-slate-700', 'bg-gray-200', 'text-gray-700');
+                btn.classList.add('border-indigo-600', 'bg-indigo-600', 'text-white');
                 btn.querySelectorAll('.purok-badge').forEach(b => {
                     b.classList.remove('bg-indigo-100', 'text-indigo-700');
                     b.classList.add('bg-white', 'text-indigo-700');
                 });
             } else {
-                btn.classList.remove('bg-indigo-600', 'text-white', 'bg-indigo-500');
-                btn.classList.add('bg-gray-200', 'text-gray-700');
+                btn.classList.remove('border-indigo-600', 'bg-indigo-600', 'text-white', 'bg-indigo-500');
+                btn.classList.add('border-gray-200', 'bg-white', 'text-slate-700');
                 btn.querySelectorAll('.purok-badge').forEach(b => {
                     b.classList.remove('bg-white');
                     b.classList.add('bg-indigo-100', 'text-indigo-700');
@@ -375,6 +483,7 @@
             }
         });
 
+        updatePurokBadges();
         updateSummaryBar();
         applyFilters();
     }

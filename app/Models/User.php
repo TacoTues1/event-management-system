@@ -61,4 +61,23 @@ class User extends Authenticatable
         'created_at' => 'datetime',
         'password' => 'hashed', // hashes automatically
     ];
+
+    public function isPrimaryAdmin(): bool
+    {
+        if ($this->role !== 'admin') {
+            return false;
+        }
+
+        $primaryAdminId = static::where('role', 'admin')
+            ->where('is_archived', false)
+            ->orderBy('user_id')
+            ->value('user_id');
+
+        return (int) $this->user_id === (int) $primaryAdminId;
+    }
+
+    public function canCreateAdmins(): bool
+    {
+        return $this->isPrimaryAdmin();
+    }
 }
