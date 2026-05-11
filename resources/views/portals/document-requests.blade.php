@@ -58,18 +58,6 @@
                                 @csrf
                                 <button type="submit" class="inline-flex items-center leading-5 text-sm font-medium text-red-600 hover:text-red-900">Reject</button>
                                 <div class="relative">
-                                    <select
-                                        name="rejection_reason_option"
-                                        class="w-44 border border-gray-300 rounded px-2 py-1 text-sm"
-                                        onchange="toggleCustomRejectReason(this)"
-                                        required
-                                    >
-                                        <option value="" disabled selected>Select option</option>
-                                        <option value="Duplicate Request">Duplicate Request</option>
-                                        <option value="Pending/Unsettled Issues">Pending/Unsettled Issues</option>
-                                        <option value="Incorrect Information">Incorrect Information</option>
-                                        <option value="Others">Others</option>
-                                    </select>
                                     <div class="hidden custom-reason-wrapper absolute left-0 top-full mt-2 z-20">
                                         <input
                                             type="text"

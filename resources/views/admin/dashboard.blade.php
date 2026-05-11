@@ -210,23 +210,22 @@
 
         <!-- Residents with Cash Assistance -->
         <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-bold text-gray-900">Cash Assistance</h3>
-                <div class="flex gap-2 items-center">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <h3 class="text-xl font-bold text-gray-900 whitespace-nowrap">Cash Assistance</h3>
+                <div class="flex flex-wrap gap-2 items-center sm:justify-end w-full sm:w-auto">
                     <span id="assistanceCount" class="text-xs text-gray-500"></span>
-                    <select id="purokFilter" class="px-2 py-1 text-xs border border-gray-300 rounded-lg">
+                    <select id="purokFilter" class="px-2 py-1 text-xs border border-gray-300 rounded-lg shrink-0">
                         <option value="">All Puroks</option>
                         @foreach($purokDistribution as $purok)
                             <option value="{{ $purok->purok }}">{{ $purok->purok }}</option>
                         @endforeach
                     </select>
-                    <select id="assistanceFilter" class="px-2 py-1 text-xs border border-gray-300 rounded-lg">
-                        <option value="">All Types</option>
-                        <option value="4Ps">4Ps</option>
-                        <option value="WGP">WGP</option>
-                        <option value="DSWD">DSWD</option>
-                        <option value="Senior">Senior</option>
-                        <option value="PWD">PWD</option>
+                    <select id="assistanceFilter" class="px-2 py-1 text-xs border border-gray-300 rounded-lg max-w-[160px] md:max-w-[200px] truncate">
+                        <option value="">Select Cash Assistance Program</option>
+                        <option value="Pantawid Pamilyang Pilipino Program (4Ps)">Pantawid Pamilyang Pilipino Program (4Ps)</option>
+                        <option value="Walang Gutom Program (WGP)">Walang Gutom Program (WGP)</option>
+                        <option value="Sustainable Livelihood Program (SLP)">Sustainable Livelihood Program (SLP)</option>
+                        <option value="Social Pension Program (SPP)">Social Pension Program (SPP)</option>
                     </select>
                 </div>
             </div>
