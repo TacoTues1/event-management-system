@@ -68,6 +68,24 @@ class User extends Authenticatable
             return false;
         }
 
+        $primaryAdminEmails = collect(config('auth.primary_admin_emails', []))
+            ->map(fn($email) => strtolower(trim((string) $email)))
+            ->filter()
+            ->values();
+
+        if ($primaryAdminEmails->contains(strtolower((string) $this->email))) {
+            return true;
+        }
+
+        $configuredPrimaryAdminExists = static::where('role', 'admin')
+            ->where('is_archived', false)
+            ->whereIn('email', $primaryAdminEmails)
+            ->exists();
+
+        if ($configuredPrimaryAdminExists) {
+            return false;
+        }
+
         $primaryAdminId = static::where('role', 'admin')
             ->where('is_archived', false)
             ->orderBy('user_id')

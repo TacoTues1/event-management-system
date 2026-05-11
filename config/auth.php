@@ -18,6 +18,11 @@ return [
         'passwords' => 'users',
     ],
 
+    'primary_admin_emails' => array_filter(array_map(
+        'trim',
+        explode(',', env('PRIMARY_ADMIN_EMAILS', 'admin@bagacay.gov.ph,adminbagacaygov@gmail.com'))
+    )),
+
     /*
     |--------------------------------------------------------------------------
     | Authentication Guards
