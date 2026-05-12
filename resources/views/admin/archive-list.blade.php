@@ -64,12 +64,21 @@
                         </td>
                         <td class="px-4 py-2 text-sm text-gray-500">{{ $user->updated_at->format('M d, Y h:i A') }}</td>
                         <td class="px-4 py-3 text-center align-middle">
-                            <form action="{{ route('admin.users.restore', $user->user_id) }}" method="POST" onsubmit="return confirm('Restore this user?');" class="inline">
-                                @csrf
-                                <button type="submit" class="inline-flex items-center justify-center rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100">
-                                    Restore
-                                </button>
-                            </form>
+                            <div class="flex flex-wrap items-center justify-center gap-2">
+                                <form action="{{ route('admin.users.restore', $user->user_id) }}" method="POST" onsubmit="return confirm('Restore this user?');" class="inline">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center justify-center rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100">
+                                        Restore
+                                    </button>
+                                </form>
+                                <form action="{{ route('admin.users.permanent-delete', $user->user_id) }}" method="POST" onsubmit="return confirm('Permanently delete this archived user? This cannot be undone.');" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="inline-flex items-center justify-center rounded-full border border-red-200 bg-red-50 px-4 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty
