@@ -15,6 +15,7 @@
     /** @var int $rejectedRequests */
     /** @var \Illuminate\Support\Collection $documentTypes */
     /** @var \Illuminate\Support\Collection $purokDistribution */
+    /** @var \Illuminate\Support\Collection $dashboardPuroks */
     /** @var \Illuminate\Support\Collection $residentsWithAssistance */
     /** @var \Illuminate\Support\Collection $recentRequests */
     /** @var array $assistanceByPurok */
@@ -216,8 +217,8 @@
                     <span id="assistanceCount" class="text-xs text-gray-500"></span>
                     <select id="purokFilter" class="px-2 py-1 text-xs border border-gray-300 rounded-lg shrink-0">
                         <option value="">All Puroks</option>
-                        @foreach($purokDistribution as $purok)
-                            <option value="{{ $purok->purok }}">{{ $purok->purok }}</option>
+                        @foreach($dashboardPuroks as $purok)
+                            <option value="{{ $purok }}">{{ $purok }}</option>
                         @endforeach
                     </select>
                     <select id="assistanceFilter" class="px-2 py-1 text-xs border border-gray-300 rounded-lg max-w-[160px] md:max-w-[200px] truncate">
@@ -431,16 +432,20 @@
         const purokFilter = document.getElementById('purokFilter');
         const assistanceFilter = document.getElementById('assistanceFilter');
         
+        function normalizePurok(value) {
+            return (value || '').toLowerCase().replace(/^purok\s+/i, '').trim();
+        }
+
         function applyFilters() {
-            const purok = purokFilter.value.toLowerCase();
+            const purok = normalizePurok(purokFilter.value);
             const assistance = assistanceFilter.value.toLowerCase();
             const items = document.querySelectorAll('.resident-item');
             let count = 0;
             
             items.forEach(item => {
-                const itemPurok = item.dataset.purok.toLowerCase();
-                const itemAssistance = item.dataset.assistance.toLowerCase();
-                const purokMatch = !purok || itemPurok.includes(purok);
+                const itemPurok = normalizePurok(item.dataset.purok);
+                const itemAssistance = (item.dataset.assistance || '').toLowerCase();
+                const purokMatch = !purok || itemPurok === purok;
                 const assistanceMatch = !assistance || itemAssistance.includes(assistance);
                 const visible = purokMatch && assistanceMatch;
                 item.style.display = visible ? 'flex' : 'none';

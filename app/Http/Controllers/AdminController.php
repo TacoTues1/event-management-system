@@ -74,6 +74,12 @@ class AdminController extends Controller
                                 ->groupBy('purok')
                                 ->orderBy('count', 'desc')
                                 ->get();
+
+        $dashboardPuroks = collect(config('puroks', []))
+                                ->keys()
+                                ->merge($purokDistribution->pluck('purok')->filter())
+                                ->unique()
+                                ->values();
         
         // Status distribution for chart
         $statusData = [
@@ -107,7 +113,7 @@ class AdminController extends Controller
             'pendingRequests', 'approvedRequests', 'rejectedRequests',
             'monthlyRequests', 'monthlyUsers', 'documentTypes',
             'recentRequests', 'recentUsers', 'purokDistribution', 'statusData',
-            'residentsWithAssistance', 'assistanceByPurok'
+            'residentsWithAssistance', 'assistanceByPurok', 'dashboardPuroks'
         ));
     }
 
