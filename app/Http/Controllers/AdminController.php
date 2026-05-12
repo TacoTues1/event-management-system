@@ -392,35 +392,6 @@ class AdminController extends Controller
         }
     }
 
-    public function permanentlyDeleteArchivedUser($id)
-    {
-        $user = User::where('user_id', $id)
-            ->where('is_archived', true)
-            ->firstOrFail();
-
-        try {
-            DB::transaction(function () use ($user) {
-                $userName = $user->name;
-                $userRole = $user->role;
-                $userId = $user->user_id;
-                $residentIdFile = $user->resident_id_file;
-
-                $user->delete();
-
-                if (!empty($residentIdFile)) {
-                    Storage::disk('public')->delete($residentIdFile);
-                }
-
-                $this->logActivity('DELETE_ARCHIVED_USER', "Permanently deleted archived {$userRole}: {$userName} (ID: {$userId})");
-            });
-
-            return redirect()->back()->with('success', 'Archived user permanently deleted.');
-        } catch (\Exception $e) {
-            Log::error('Failed to permanently delete archived user ID ' . $id . ': ' . $e->getMessage());
-            return back()->with('error', 'Failed to delete archived user. Please try again.');
-        }
-    }
-
     public function adminsList(Request $request)
     {
         if (! auth()->user()?->canCreateAdmins()) {

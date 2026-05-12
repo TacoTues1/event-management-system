@@ -138,10 +138,6 @@ Route::post('/users/{id}/restore', [AdminController::class, 'restoreUser'])
     ->middleware(['auth', 'admin'])
     ->name('admin.users.restore');
 
-Route::delete('/users/{id}/permanent-delete', [AdminController::class, 'permanentlyDeleteArchivedUser'])
-    ->middleware(['auth', 'admin'])
-    ->name('admin.users.permanent-delete');
-
 Route::get('/archived-users', [AdminController::class, 'archiveList'])
     ->middleware(['auth', 'admin'])
     ->name('admin.archive');
